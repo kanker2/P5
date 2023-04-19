@@ -13,7 +13,7 @@ public class Main {
 //		tC.start();
 		
 		Server s = new Server(1300);
-		Client c = new Client(0, InetAddress.getLocalHost(), 1300, "a.txt");
+		Client c = new Client(0, "localhost", 1300, "a.txt");
 //		for(int i = 0; i < 2; i++) {
 //			Client c = new Client(i, InetAddress.getLocalHost(), 1300, "a.txt");
 //		}

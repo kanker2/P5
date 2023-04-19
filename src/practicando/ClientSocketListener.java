@@ -2,6 +2,7 @@ package practicando;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -25,6 +26,7 @@ public class ClientSocketListener extends Thread{
 		try {
 			Socket s = new Socket(c.getIP(), c.getPort());
 			PrintWriter foutC = new PrintWriter(s.getOutputStream());
+//			System.out.println(new ObjectOutputStream(s.getOutputStream()));
 			foutC.println(c.getFileName());
 			foutC.flush();
 

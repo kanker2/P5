@@ -9,13 +9,13 @@ import java.net.Socket;
 public class Client{
 	
 	private int id;
-	private InetAddress ip;
+	private String ip;
 	private int port;
 	private String fn;
 	private File f;
 	ClientSocketListener csl;
 	
-	public Client(int id, InetAddress ip, int port, String fn)
+	public Client(int id, String ip, int port, String fn)
 	{
 		this.ip = ip;
 		this.port = port;
@@ -31,7 +31,7 @@ public class Client{
 		System.out.println(this.f);
 	}
 	
-	public InetAddress getIP() {
+	public String getIP() {
 		return ip;
 	}
 	
@@ -52,7 +52,7 @@ public class Client{
 	{
 		try
 		{
-			Socket s = new Socket(InetAddress.getLocalHost(), 99);
+			Socket s = new Socket("localhost", 99);
 			
 			ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 			oos.writeObject(3);
