@@ -17,10 +17,6 @@ public class Message implements Serializable{
 	public String getSrc() { return src; }
 	
 	public MessageType nextType() {
-		switch(type){
-		case PEDIR_LISTA_ARCHIVOS:
-			return 	MessageType.CONFIRMACION_PEDIR_LISTA_ARCHIVOS;
-		}
-		return MessageType.ERROR;
+		return null;
 	}
 }

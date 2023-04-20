@@ -5,28 +5,45 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 
 import common.Message;
 import common.MessageType;
+import common.ProtocolError;
 
 public class ServerListener extends Thread{
 	
 	private Client client;
-	private Socket serverSocket;
+	private Socket socketToServer;
 	private ObjectInputStream fin;
-	private ObjectOutputStream fout;
+	private boolean listening;
 	
-	
-	public ServerListener(Client c, String ip, int port) throws IOException{
+	public ServerListener(Client c, String ip, int port) throws IOException, ClassNotFoundException, ProtocolError{
 		client = c;
-		serverSocket = new Socket(ip, port);
-		fin = new ObjectInputStream(serverSocket.getInputStream());
-		fout = new ObjectOutputStream(serverSocket.getOutputStream());
+		listening = true;
+		socketToServer = new Socket(ip, port);
+		fin = new ObjectInputStream(socketToServer.getInputStream());
+		ObjectOutputStream fout = new ObjectOutputStream(socketToServer.getOutputStream());
+		String clientId = stablishConnection(fin, fout);
+		client.setId(clientId);
+	}
+
+	private String stablishConnection(ObjectInputStream fin, ObjectOutputStream fout) throws IOException, ClassNotFoundException, ProtocolError{
+		Message hiServer = new Message("server", "new client", MessageType.INICIAR_CONEXION);
+		fout.writeObject(hiServer);
+		Message serverResponse = (Message) fin.readObject();
+		if (serverResponse.getType() != hiServer.nextType())
+			throw new ProtocolError(hiServer);
+		String clientId = serverResponse.getDest();
+		return clientId;
 	}
 	
-	public void listFiles() throws IOException, ClassNotFoundException{
-		fout.writeObject(new Message("server", client.getId(), MessageType.PEDIR_LISTA_ARCHIVOS));
-		Message confirmation = (Message) fin.readObject();
-		Collection<String> listFiles = (Collection<String>) fin.readObject();
+	@Override
+	public void run() {
+		while (listening) {
+			
+		}
 	}
 }

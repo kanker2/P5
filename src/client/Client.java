@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import common.ProtocolError;
+
 public class Client {
 	private String id;
 	private String username;
 	private ServerListener serverListener;
 	private Set<String> availableFiles;
+	
 	/*
 	c1 quiere a2
 		pide a oyenteServidor a2
@@ -32,36 +35,27 @@ public class Client {
 	4 (opcional) cargarArchivo
 	*/
 	
-	public Client (String username, String ip, int port) throws IOException{
+	public Client (String username, String ip, int port) throws ClassNotFoundException, IOException, ProtocolError {
 		this.username = username;
 		availableFiles = new HashSet<>();
 		serverListener = new ServerListener(this, ip, port);
+		serverListener.start();
 	}
 	
 	public String getId() { return id; }
 	public String getUsername() { return username; }
 	
-	public void listFiles() {
-		new Thread(() -> {
-			try {
-				serverListener.listFiles();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-	}
+	public void setId(String id) { this.id = id; }
 	
-	public void receiveFiles() {
-		/*Updateamos info*/
+	public void listFiles() {
+		
 	}
 	
 	public void downloadFile(String file) {
 		
 	}
 	
-	public void byebye() {
+	public void closeConnection() {
 		
 	}
 }
