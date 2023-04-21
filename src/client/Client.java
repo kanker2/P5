@@ -2,11 +2,12 @@ package client;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Observable;
 import java.util.Set;
 
 import common.ProtocolError;
 
-public class Client {
+public class Client extends Observable{
 	private String id;
 	private String username;
 	private ServerListener serverListener;
