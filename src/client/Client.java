@@ -1,9 +1,13 @@
 package client;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
+import java.util.TreeMap;
 
 import common.ProtocolError;
 
@@ -11,7 +15,7 @@ public class Client extends Observable{
 	private String id;
 	private String username;
 	private ServerListener serverListener;
-	private Set<String> availableFiles;
+	private Map<String, String> availableFiles; //Nombre fichero, localizacion fichero
 	
 	/*
 	c1 quiere a2
@@ -38,7 +42,7 @@ public class Client extends Observable{
 	
 	public Client (String username, String ip, int port) throws ClassNotFoundException, IOException, ProtocolError {
 		this.username = username;
-		availableFiles = new HashSet<>();
+		availableFiles = new TreeMap<>();
 		serverListener = new ServerListener(this, ip, port);
 		serverListener.start();
 	}

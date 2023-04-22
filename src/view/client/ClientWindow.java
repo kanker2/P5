@@ -1,7 +1,12 @@
 package view.client;
 
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -22,10 +27,15 @@ public class ClientWindow extends JFrame{
 	
 	public ClientWindow(String ip, Integer port) {
 		obtainUserName();
+		try {
+			System.out.println(InetAddress.getLocalHost());
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		setTitle("Client " + username);
 		
-//		mainPanel = createMainPanel();
-//		add(mainPanel);
+		mainPanel = createMainPanel(client);
+		add(mainPanel);
 		
 		this.setSize(400, 300);
 		this.setLocationRelativeTo(null);
@@ -34,7 +44,7 @@ public class ClientWindow extends JFrame{
 	
 	private void obtainUserName() {
 		JDialog dialog = new JDialog(this, "Credenciales", true);
-		JPanel infoPanel = new JPanel(new GridLayout(2, 1));
+		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		
 		JPanel userInfoPanel = new JPanel(new GridLayout(1,2));
 		JLabel userLabel = new JLabel("Username: ");
@@ -43,8 +53,15 @@ public class ClientWindow extends JFrame{
 		userInfoPanel.add(userTextField);
 		
 		JButton userButton = new JButton("Save");
+		userButton.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+					userButton.doClick();
+			}
+		});
 		userButton.addActionListener((ActionEvent e) -> {
 			username = userTextField.getText();
+			dialog.dispose();
 			//Cerrar el dialog
 		});
 		
@@ -52,6 +69,11 @@ public class ClientWindow extends JFrame{
 		infoPanel.add(userButton);
 		
 		dialog.setContentPane(infoPanel);
+		
+		dialog.setLocationRelativeTo(null);
+		dialog.setSize(400,300);
+		
+		dialog.setVisible(true);
 	}
 	
 	private JPanel createMainPanel(Client c) {

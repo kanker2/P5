@@ -16,9 +16,9 @@ import common.ProtocolError;
 public class ServerListener extends Thread{
 	
 	private Client client;
+	private boolean listening;
 	private Socket socketToServer;
 	private ObjectInputStream fin;
-	private boolean listening;
 	
 	public ServerListener(Client c, String ip, int port) throws IOException, ClassNotFoundException, ProtocolError{
 		client = c;
