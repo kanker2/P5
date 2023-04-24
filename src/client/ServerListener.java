@@ -8,11 +8,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import common.Message;
 import common.MessageType;
 import common.Observer;
 import common.ProtocolError;
+import common.StreamProxy;
 
 public class ServerListener implements Runnable{
 	
@@ -28,6 +30,9 @@ public class ServerListener implements Runnable{
 		streamProxy = new StreamProxy(socketToServer);
 	}
 
+	public String getIp() { return socketToServer.getInetAddress().getHostAddress(); }
+	public Integer getPort() { return socketToServer.getPort(); }
+	
 	public void newShareableFile(String name) {
 		Map<String, Object> args = new HashMap<>();
 		args.put("nombre_fichero", name);
@@ -50,6 +55,15 @@ public class ServerListener implements Runnable{
 		return clientId;
 	}
 	
+	public void closeConnection() {
+		streamProxy.write(new Message("server", client.getId(), MessageType.FIN_CONEXION));
+	}
+	
+	private void updateDownloadableFiles(Message m) {
+		Set<String> downloadableFiles = (Set<String>) m.getcontent("files");
+		client.updateDownloadableFiles(downloadableFiles);
+	}
+	
 	public void setLog(Observer o) {
 		streamProxy.setLog(o);
 	}
@@ -61,6 +75,17 @@ public class ServerListener implements Runnable{
 			if (m != null) {
 				switch(m.getType()) {
 				case CONF_NUEVO_FICHERO_C:
+					break;
+				case CONF_FIN_CONEXION:
+					listening = false;
+					try {
+						socketToServer.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					break;
+				case ACTUALIZAR_FICHEROS:
+					updateDownloadableFiles(m);
 					break;
 				default:
 					break;

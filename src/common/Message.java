@@ -23,6 +23,7 @@ public class Message implements Serializable{
 	public String getDest() { return dest; }
 	public String getSrc() { return src; }
 	public Object getcontent(String key) { return content.get(key); }
+	public Map<String, Object> getArgs() { return content; }
 
 	public MessageType nextType() {
 		switch(type) {

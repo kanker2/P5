@@ -1,4 +1,4 @@
-package view.client;
+package view.server;
 
 import java.awt.BorderLayout;
 
@@ -8,6 +8,7 @@ import javax.swing.JTextArea;
 
 import client.Client;
 import common.StreamProxy;
+import server.Server;
 import common.Message;
 import common.Observable;
 import common.Observer;
@@ -17,7 +18,7 @@ public class LogPanel extends JPanel implements Observer{
 	private JTextArea log;
 	private JLabel titleLabel;
 	
-	public LogPanel(Client c) {
+	public LogPanel(Server c) {
 		super(new BorderLayout());
 		
 		log = new JTextArea();

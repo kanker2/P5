@@ -29,6 +29,8 @@ public class Client extends Observable {
 	public String getUsername() { return username; }
 	public Map<String, String> getShareableFiles() { return shareableFiles; }
 	public Set<String> getDownloadableFiles() {return downloadableFiles; }
+	public String getIp() { return serverListener.getIp(); }
+	public Integer getPort() { return serverListener.getPort(); }
 	
 	public void setId(String id) { 
 		this.id = id;
@@ -61,7 +63,8 @@ public class Client extends Observable {
 	}
 	
 	public void closeConnection() {
-		
+		serverListener.closeConnection();
+		notifyObservers("close_connection");
 	}
 	
 	public void setLog(Observer o) {

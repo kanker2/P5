@@ -15,7 +15,8 @@ public class Observable {
 	}
 	
 	public void notifyObservers(Object arg) {
-		for(Observer o : observers) 
-			o.update(this, arg);
+		for(Observer o : observers)
+			if (o != null)
+				o.update(this, arg);
 	}
 }

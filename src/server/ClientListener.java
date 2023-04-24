@@ -9,48 +9,80 @@ import java.util.Map;
 
 import common.Message;
 import common.MessageType;
+import common.Observer;
+import common.StreamProxy;
+import common.StreamProxyMonitor;
 
 public class ClientListener extends Thread{
+	
+	private Socket socket;
 	private Server server;
-	private ObjectInputStream fin;
-	private ObjectOutputStream fout;
+	private StreamProxy streamProxy;
+	
 	private String id;
 	private String username;
 	
-	public ClientListener(Socket socket, Server s) throws IOException {
+	private Boolean listening;
+	
+	public ClientListener(String id, Socket socket, Server s, Observer log) throws IOException {
+		this.id = id;
+		this.socket = socket;
 		this.server = s;
-		fout = new ObjectOutputStream(socket.getOutputStream());
-		fin = new ObjectInputStream(socket.getInputStream());
+		streamProxy = new StreamProxyMonitor(socket, false);
+		streamProxy.setLog(log);
+
+		listening = true;
+		
+//		fout = new ObjectOutputStream(socket.getOutputStream());
+//		fin = new ObjectInputStream(socket.getInputStream());
 	}
 	
+	public String getClientId() { return id; }
+	public String getUserName() { return username; }
+	
 	private void startConnection(Message m) throws InterruptedException, IOException {
-		id = server.getNewId();
 		username = m.getSrc();
-		fout.writeObject(new Message(id.toString(), m.getDest(), m.nextType()));
-		fout.flush();
+		streamProxy.write(new Message(id.toString(), m.getDest(), m.nextType()));
+		server.connectionStablished();
+//		fout.writeObject(new Message(id.toString(), m.getDest(), m.nextType()));
+//		fout.flush();
 	}
 	
 	public void filesActualization(Map<String, Object> args) {
-//		Message m = new Message(id.toString(), "server", MessageType.ACTUALIZAR_FICHEROS, args);
+		Message m = new Message(id, "server", MessageType.ACTUALIZAR_FICHEROS, args);
+		streamProxy.write(m);
 //		fout.writeObject(m);
 	}
 	
 	public void addFile(Message m) {
-		String fileName = (String) m.getcontent("nombre_fichero");
+		Map<String, Object> args = m.getArgs();
+		String fileName = (String) args.get("nombre_fichero");
 		String clientId = m.getSrc();
 		server.addFile(fileName, clientId);
+		streamProxy.write(new Message(clientId, "server", m.nextType()));
+//		try {
+//			fout.writeObject();
+//		} catch(IOException e) {
+//			e.printStackTrace();
+//		}
+	}
+	
+	private void closeConnection(Message m) {
+		server.closeConnection(id);
+		streamProxy.write(new Message(m.getSrc(), m.getDest(), m.nextType()));
 		try {
-			fout.writeObject(new Message(clientId, "server", m.nextType()));
-		} catch(IOException e) {
+			socket.close();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	@Override
 	public void run() {
-		while (true) {
+		while (listening) {
 			try {
-				Message m = (Message) fin.readObject();
+//				Message m = (Message) fin.readObject();
+				Message m = streamProxy.read();
 				switch(m.getType()) {
 				case INICIAR_CONEXION:
 					startConnection(m);
@@ -58,10 +90,17 @@ public class ClientListener extends Thread{
 				case NUEVO_FICHERO_C:
 					addFile(m);
 					break;
+				case FIN_CONEXION:
+					listening = false;
+					closeConnection(m);
+					break;
 				}
 				
 				
-			} catch (ClassNotFoundException | IOException | InterruptedException e) {
+//			} catch (ClassNotFoundException | IOException | InterruptedException e) {
+//				e.printStackTrace();
+//			}
+			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
 		}

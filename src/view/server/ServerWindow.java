@@ -1,6 +1,7 @@
-package view;
+package view.server;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
@@ -8,10 +9,11 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import server.Server;
 
-public class ServerWindow extends JFrame{
+public class ServerWindow extends JFrame {
 	
 	private Server server;
 	private JPanel mainPanel;
@@ -22,20 +24,25 @@ public class ServerWindow extends JFrame{
 		
 		connectWithMainWindow(mainWindow);
 		
-		this.setSize(400, 300);
+		this.setSize(600, 400);
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 		
 		createMainPanel(port);
 		
-		server.start();
+		(new Thread(server)).start();
 	}
 	
 	private void createMainPanel(Integer port){
 		try {
 			server = new Server(port);
-			mainPanel = new JPanel(new BorderLayout());
-			mainPanel.add(new JLabel("Creado"), BorderLayout.CENTER);
+			mainPanel = new JPanel(new GridLayout(2,2));
+			
+			mainPanel.add(new FilesInfoPanel(server));			
+			mainPanel.add(new ClientsInfoPanel(server));
+			mainPanel.add(new JScrollPane(new LogPanel(server)));
+			mainPanel.add(new ServerInfoPanel());
+			
 		} catch(IOException e) {
 			mainPanel = new JPanel(new BorderLayout());
 			mainPanel.add(new JLabel("Error al crear el servidor"), BorderLayout.CENTER);

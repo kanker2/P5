@@ -11,20 +11,21 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import client.Client;
+import common.Observable;
+import common.Observer;
 import common.ProtocolError;
 
-public class ClientWindow extends JFrame{
+public class ClientWindow extends JFrame implements Observer{
 
 	private JPanel mainPanel;
 	private Client client;
@@ -80,11 +81,12 @@ public class ClientWindow extends JFrame{
 		
 		try {
 			client = new Client(username, ip, port);
+			client.addObserver(this);
 			mainPanel = new JPanel(new GridLayout(2,  2));
 			
 			mainPanel.add(new OwnedFilesPanel(client));
 			mainPanel.add(new DownloadableFilesPanel(client));
-			mainPanel.add(new LogPanel(client));
+			mainPanel.add(new JScrollPane(new LogPanel(client)));
 			mainPanel.add(new MenuPanel(this, client));
 
 			client.connectToServer();
@@ -110,5 +112,11 @@ public class ClientWindow extends JFrame{
 			public void windowClosed(WindowEvent e) {}
 			public void windowActivated(WindowEvent e) {}
 		});
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (arg instanceof String && (String) arg == "close_connection")
+			dispose();
 	}
 }

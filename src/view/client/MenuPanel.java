@@ -12,16 +12,20 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import client.Client;
+import common.Observable;
+import common.Observer;
 
-public class MenuPanel extends JPanel{
+public class MenuPanel extends JPanel implements Observer{
 	private Client c;
 	private JFrame parent;
+	private JLabel ip, port, username, clientId;
 	
 	public MenuPanel(JFrame parent, Client c) {
 		super(new BorderLayout());
 		
 		this.parent = parent;
 		this.c = c;
+		c.addObserver(this);
 		
 		add(new JLabel("Menu"), BorderLayout.NORTH);
 		add(createActionsPanel(), BorderLayout.CENTER);
@@ -55,12 +59,30 @@ public class MenuPanel extends JPanel{
 			c.closeConnection();
 		});
 		
+		//Información del cliente
+		JPanel clientInfoPanel = new JPanel(new GridLayout(2,2));
+		ip = new JLabel("Ip: " + c.getIp());
+		port = new JLabel("Port: " + c.getPort());
+		username = new JLabel("Username: " + c.getUsername());
+		clientId = new JLabel("Client ID: Not set yet");
+		clientInfoPanel.add(ip);
+		clientInfoPanel.add(port);
+		clientInfoPanel.add(username);
+		clientInfoPanel.add(clientId);
+		
 		JPanel actionsPanel = new JPanel(new GridLayout(4,1));
 		
+		actionsPanel.add(clientInfoPanel);
 		actionsPanel.add(downloadFilePanel);
 		actionsPanel.add(uploadFile);
 		actionsPanel.add(closeConnection);
 		
 		return actionsPanel;
+	}
+	
+	@Override
+	public void update(Observable o, Object arg) {
+		if (arg instanceof String && (String) arg == "id_set")
+			clientId.setText("ClientId: " + c.getId());
 	}
 }

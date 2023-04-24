@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import view.client.ClientWindow;
+import view.server.ServerWindow;
 
 public class MainWindow extends JFrame{
 

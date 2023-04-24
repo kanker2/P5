@@ -1,4 +1,4 @@
-package client;
+package common;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,13 +10,23 @@ import common.Observable;
 import common.Observer;
 
 public class StreamProxy extends Observable{
-	private ObjectInputStream fin;
-	private ObjectOutputStream fout;
+	protected ObjectInputStream fin;
+	protected ObjectOutputStream fout;
 	private Message lastGoodMessage;
 	
 	public StreamProxy(Socket s) throws IOException {
-		fin = new ObjectInputStream(s.getInputStream());
-		fout = new ObjectOutputStream(s.getOutputStream());
+		this(s, true);
+	}
+	
+	public StreamProxy(Socket s, Boolean fromClient) throws IOException{
+		if (fromClient) {
+			fin = new ObjectInputStream(s.getInputStream());
+			fout = new ObjectOutputStream(s.getOutputStream());
+		}
+		else {
+			fout = new ObjectOutputStream(s.getOutputStream());
+			fin = new ObjectInputStream(s.getInputStream());
+		}
 	}
 	
 	public Message lastCommunication() { return lastGoodMessage; }
@@ -39,11 +49,12 @@ public class StreamProxy extends Observable{
 	
 	public void write(Message o){
 		try {
-			notifyObservers(o);
 			fout.writeObject(o);
 			fout.flush();
 			lastGoodMessage = o;
+			notifyObservers(o);
 		} catch(IOException e) {
+			e.printStackTrace();
 			notifyObservers("error");
 		}
 	}
