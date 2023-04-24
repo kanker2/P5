@@ -34,9 +34,7 @@ public class ServerListener implements Runnable{
 	public Integer getPort() { return socketToServer.getPort(); }
 	
 	public void newShareableFile(String name) {
-		Map<String, Object> args = new HashMap<>();
-		args.put("nombre_fichero", name);
-		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C, args);
+		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C, name);
 		streamProxy.write(m);
 	}
 	
@@ -60,8 +58,9 @@ public class ServerListener implements Runnable{
 	}
 	
 	private void updateDownloadableFiles(Message m) {
-		Set<String> downloadableFiles = (Set<String>) m.getcontent("files");
+		Set<String> downloadableFiles = m.getFiles();
 		client.updateDownloadableFiles(downloadableFiles);
+		streamProxy.write(new Message(m.getSrc(), m.getDest(), m.nextType()));
 	}
 	
 	public void setLog(Observer o) {

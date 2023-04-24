@@ -1,11 +1,14 @@
 package server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Set;
 
 import common.Message;
 import common.MessageType;
@@ -32,9 +35,6 @@ public class ClientListener extends Thread{
 		streamProxy.setLog(log);
 
 		listening = true;
-		
-//		fout = new ObjectOutputStream(socket.getOutputStream());
-//		fin = new ObjectInputStream(socket.getInputStream());
 	}
 	
 	public String getClientId() { return id; }
@@ -44,27 +44,18 @@ public class ClientListener extends Thread{
 		username = m.getSrc();
 		streamProxy.write(new Message(id.toString(), m.getDest(), m.nextType()));
 		server.connectionStablished();
-//		fout.writeObject(new Message(id.toString(), m.getDest(), m.nextType()));
-//		fout.flush();
 	}
 	
-	public void filesActualization(Map<String, Object> args) {
-		Message m = new Message(id, "server", MessageType.ACTUALIZAR_FICHEROS, args);
+	public void filesActualization(Set<String> files) {
+		Message m = new Message(id, "server", MessageType.ACTUALIZAR_FICHEROS, files);
 		streamProxy.write(m);
-//		fout.writeObject(m);
 	}
 	
 	public void addFile(Message m) {
-		Map<String, Object> args = m.getArgs();
-		String fileName = (String) args.get("nombre_fichero");
+		String fileName = m.getFileName();
 		String clientId = m.getSrc();
 		server.addFile(fileName, clientId);
 		streamProxy.write(new Message(clientId, "server", m.nextType()));
-//		try {
-//			fout.writeObject();
-//		} catch(IOException e) {
-//			e.printStackTrace();
-//		}
 	}
 	
 	private void closeConnection(Message m) {
@@ -81,7 +72,6 @@ public class ClientListener extends Thread{
 	public void run() {
 		while (listening) {
 			try {
-//				Message m = (Message) fin.readObject();
 				Message m = streamProxy.read();
 				switch(m.getType()) {
 				case INICIAR_CONEXION:
@@ -95,11 +85,6 @@ public class ClientListener extends Thread{
 					closeConnection(m);
 					break;
 				}
-				
-				
-//			} catch (ClassNotFoundException | IOException | InterruptedException e) {
-//				e.printStackTrace();
-//			}
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}

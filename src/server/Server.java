@@ -49,15 +49,12 @@ public class Server extends Observable implements Runnable{
 		return tmp.toString();
 	}
 
-	public void notifyFileActualizationToClients(String notToThis) {
+	public void notifyFileActualizationToClients() {
 		infoMonitor.request_read();
+		Set<String> files = filesToClientIds.keySet();
 		for(Map.Entry<String, ClientListener> entry : clientListeners.entrySet()) {
-			Map<String, Object> args = new HashMap<String, Object>();
-			args.put("ficheros", filesToClientIds.keySet());
-			if (!entry.getKey().equals(notToThis)) {
-				ClientListener cl = entry.getValue();
-				cl.filesActualization(args);
-			}
+			ClientListener cl = entry.getValue();
+			cl.filesActualization(files);
 		}
 		infoMonitor.release_read();
 	}
@@ -74,7 +71,7 @@ public class Server extends Observable implements Runnable{
 		}
 		infoMonitor.release_write();
 		notifyObservers("add_file");
-		notifyFileActualizationToClients(clientId);
+		notifyFileActualizationToClients();
 	}
 	
 	public Map<String, String> getUsers(){
@@ -95,6 +92,7 @@ public class Server extends Observable implements Runnable{
 	
 	public void connectionStablished() {
 		notifyObservers("new_connection");
+		notifyFileActualizationToClients();
 	}
 	
 	private void removeClientFiles(String id) {
@@ -116,6 +114,7 @@ public class Server extends Observable implements Runnable{
 		removeClientFiles(id);
 		notifyObservers("removed_connection");
 		infoMonitor.release_write();
+		notifyFileActualizationToClients();
 	}
 	
 	private void createNewClientListener(Socket s) throws IOException, InterruptedException {

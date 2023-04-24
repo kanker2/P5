@@ -1,29 +1,46 @@
 package common;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Message implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private MessageType type;
 	private String dest, src;
-	private Map<String, Object> content;
+	private String fileName;
+	private String ip; private Integer port;
+	private Set<String> files;
 	
-	public Message(String dest, String src, MessageType type, Map<String, Object> content) {
+	public Message(String dest, String src, MessageType type, String fileName) {
+		this(dest,src,type);
+		this.fileName = fileName;
+	}
+	
+	public Message(String dest, String src, MessageType type, String ip, Integer port) {
+		this(dest,src,type);
+		this.ip = ip;
+		this.port = port;
+	}
+	
+	public Message(String dest, String src, MessageType type, Set<String> files) {
+		this(dest,src,type);
+		this.files = new HashSet<>(files);
+	}
+	
+	public Message(String dest, String src, MessageType type) {
 		this.type = type;
 		this.src = src;
 		this.dest = dest;
-		this.content = content;
-	}
-
-	public Message(String dest, String src, MessageType type) {
-		this(dest,src,type,null);
 	}
 	
 	public MessageType getType() { return type; }
 	public String getDest() { return dest; }
 	public String getSrc() { return src; }
-	public Object getcontent(String key) { return content.get(key); }
-	public Map<String, Object> getArgs() { return content; }
+	public String getFileName() { return fileName; }
+	public String getIp() { return ip; }
+	public Integer getPort() { return port; }
+	public Set<String> getFiles() { return files; }
 
 	public MessageType nextType() {
 		switch(type) {
