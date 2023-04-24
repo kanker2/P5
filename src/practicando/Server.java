@@ -35,6 +35,7 @@ public class Server {
 		try {
 			ServerSocket ss = new ServerSocket(99);
 			Socket s1 = ss.accept();
+			System.out.println(s1);
 			
 			ObjectInputStream ois = new ObjectInputStream(s1.getInputStream());
 			System.out.println("Server recibe: " + ((Integer) ois.readObject()));

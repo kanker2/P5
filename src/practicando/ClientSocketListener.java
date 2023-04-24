@@ -25,6 +25,7 @@ public class ClientSocketListener extends Thread{
 	public void run() {
 		try {
 			Socket s = new Socket(c.getIP(), c.getPort());
+			System.out.println(s);
 			PrintWriter foutC = new PrintWriter(s.getOutputStream());
 //			System.out.println(new ObjectOutputStream(s.getOutputStream()));
 			foutC.println(c.getFileName());

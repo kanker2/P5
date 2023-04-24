@@ -11,39 +11,61 @@ import java.util.Queue;
 
 import common.Message;
 import common.MessageType;
+import common.Observer;
 import common.ProtocolError;
 
-public class ServerListener extends Thread{
+public class ServerListener implements Runnable{
 	
 	private Client client;
 	private boolean listening;
 	private Socket socketToServer;
-	private ObjectInputStream fin;
+	private StreamProxy streamProxy;
 	
 	public ServerListener(Client c, String ip, int port) throws IOException, ClassNotFoundException, ProtocolError{
 		client = c;
 		listening = true;
 		socketToServer = new Socket(ip, port);
-		fin = new ObjectInputStream(socketToServer.getInputStream());
-		ObjectOutputStream fout = new ObjectOutputStream(socketToServer.getOutputStream());
-		String clientId = stablishConnection(fin, fout);
-		client.setId(clientId);
+		streamProxy = new StreamProxy(socketToServer);
 	}
 
-	private String stablishConnection(ObjectInputStream fin, ObjectOutputStream fout) throws IOException, ClassNotFoundException, ProtocolError{
-		Message hiServer = new Message("server", "new client", MessageType.INICIAR_CONEXION);
-		fout.writeObject(hiServer);
-		Message serverResponse = (Message) fin.readObject();
-		if (serverResponse.getType() != hiServer.nextType())
+	public void newShareableFile(String name) {
+		Map<String, Object> args = new HashMap<>();
+		args.put("nombre_fichero", name);
+		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C, args);
+		streamProxy.write(m);
+	}
+	
+	public void connectToServer() throws IOException, ClassNotFoundException, ProtocolError{
+		String clientId = stablishConnection();
+		client.setId(clientId);
+	}
+	
+	private String stablishConnection() throws IOException, ClassNotFoundException, ProtocolError{
+		Message hiServer = new Message("server", client.getUsername(), MessageType.INICIAR_CONEXION);
+		streamProxy.write(hiServer);
+		Message serverResponse = (Message) streamProxy.read();
+		if (serverResponse == null || serverResponse.getType() != hiServer.nextType())
 			throw new ProtocolError(hiServer);
 		String clientId = serverResponse.getDest();
 		return clientId;
 	}
 	
+	public void setLog(Observer o) {
+		streamProxy.setLog(o);
+	}
+	
 	@Override
 	public void run() {
 		while (listening) {
-			
+			Message m = streamProxy.read();
+			if (m != null) {
+				switch(m.getType()) {
+				case CONF_NUEVO_FICHERO_C:
+					break;
+				default:
+					break;
+				}
+			}
 		}
 	}
 }

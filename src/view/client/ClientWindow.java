@@ -1,10 +1,14 @@
 package view.client;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Observable;
@@ -18,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import client.Client;
+import common.ProtocolError;
 
 public class ClientWindow extends JFrame{
 
@@ -27,17 +32,12 @@ public class ClientWindow extends JFrame{
 	
 	public ClientWindow(String ip, Integer port) {
 		obtainUserName();
-		try {
-			System.out.println(InetAddress.getLocalHost());
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
 		setTitle("Client " + username);
 		
-		mainPanel = createMainPanel(client);
-		add(mainPanel);
+		createMainPanel(ip, port);
+		setCloseAction();
 		
-		this.setSize(400, 300);
+		this.setSize(600, 400);
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 	}
@@ -76,12 +76,39 @@ public class ClientWindow extends JFrame{
 		dialog.setVisible(true);
 	}
 	
-	private JPanel createMainPanel(Client c) {
-		JPanel mainPanel = new JPanel(new GridLayout(2,  2));
-		mainPanel.add(new OwnedFilesPanel());
-		mainPanel.add(new DownloadableFilesPanel());
-		mainPanel.add(new LogPanel());
-		mainPanel.add(new MenuPanel());
-		return mainPanel;
+	private void createMainPanel(String ip, Integer port){
+		
+		try {
+			client = new Client(username, ip, port);
+			mainPanel = new JPanel(new GridLayout(2,  2));
+			
+			mainPanel.add(new OwnedFilesPanel(client));
+			mainPanel.add(new DownloadableFilesPanel(client));
+			mainPanel.add(new LogPanel(client));
+			mainPanel.add(new MenuPanel(this, client));
+
+			client.connectToServer();
+		}catch (ClassNotFoundException | IOException | ProtocolError e) {
+			
+			mainPanel = new JPanel(new BorderLayout());
+			mainPanel.add(new JLabel("Error al establecer conexion con el servidor"), BorderLayout.CENTER);
+			
+			e.printStackTrace();
+		}
+		add(mainPanel);
+	}
+
+	private void setCloseAction() {
+		addWindowListener(new WindowListener() {
+			public void windowOpened(WindowEvent e) {}
+			public void windowIconified(WindowEvent e) {}
+			public void windowDeiconified(WindowEvent e) {}
+			public void windowDeactivated(WindowEvent e) {}
+			public void windowClosing(WindowEvent e) {
+				client.closeConnection();
+			}
+			public void windowClosed(WindowEvent e) {}
+			public void windowActivated(WindowEvent e) {}
+		});
 	}
 }
