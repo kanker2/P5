@@ -50,11 +50,21 @@ public class Server extends Observable implements Runnable{
 	}
 
 	public void notifyFileActualizationToClients() {
+		notifyFileActualizationToClients(null);
+	}
+	
+	public void notifyFileActualizationToClients(String id) {
 		infoMonitor.request_read();
 		Set<String> files = filesToClientIds.keySet();
-		for(Map.Entry<String, ClientListener> entry : clientListeners.entrySet()) {
-			ClientListener cl = entry.getValue();
+		if (id != null) {
+			ClientListener cl = clientListeners.get(id);
 			cl.filesActualization(files);
+		}
+		else {
+			for(Map.Entry<String, ClientListener> entry : clientListeners.entrySet()) {
+				ClientListener cl = entry.getValue();
+				cl.filesActualization(files);
+			}
 		}
 		infoMonitor.release_read();
 	}
@@ -90,9 +100,9 @@ public class Server extends Observable implements Runnable{
 		return downloadableFiles;
 	}
 	
-	public void connectionStablished() {
+	public void connectionStablished(String id) {
 		notifyObservers("new_connection");
-		notifyFileActualizationToClients();
+		notifyFileActualizationToClients(id);
 	}
 	
 	private void removeClientFiles(String id) {

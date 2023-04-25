@@ -43,7 +43,7 @@ public class ClientListener extends Thread{
 	private void startConnection(Message m) throws InterruptedException, IOException {
 		username = m.getSrc();
 		streamProxy.write(new Message(id.toString(), m.getDest(), m.nextType()));
-		server.connectionStablished();
+		server.connectionStablished(id.toString());
 	}
 	
 	public void filesActualization(Set<String> files) {
