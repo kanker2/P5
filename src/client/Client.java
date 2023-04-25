@@ -31,7 +31,7 @@ public class Client extends Observable {
 	public Set<String> getDownloadableFiles() {return downloadableFiles; }
 	public String getIp() { return serverListener.getIp(); }
 	public Integer getPort() { return serverListener.getPort(); }
-	
+
 	public void setId(String id) { 
 		this.id = id;
 		notifyObservers("id_set");
@@ -39,7 +39,7 @@ public class Client extends Observable {
 
 	public void connectToServer() throws IOException, ClassNotFoundException, ProtocolError{
 		serverListener.connectToServer();
-		(new Thread(serverListener)).start();
+		serverListener.listen();
 	}
 	
 	public void newShareableFile(String name, String path) {
@@ -54,6 +54,11 @@ public class Client extends Observable {
 		notifyObservers("downloadable_files");
 	}
 	
+	public void closeConnection() {
+		serverListener.closeConnection();
+		notifyObservers("close_connection");
+	}
+	
 	public void listFiles() {
 		
 	}
@@ -61,12 +66,7 @@ public class Client extends Observable {
 	public void downloadFile(String file) {
 		
 	}
-	
-	public void closeConnection() {
-		serverListener.closeConnection();
-		notifyObservers("close_connection");
-	}
-	
+
 	public void setLog(Observer o) {
 		serverListener.setLog(o);
 	}

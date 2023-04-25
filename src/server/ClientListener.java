@@ -20,7 +20,7 @@ public class ClientListener extends Thread{
 	
 	private Socket socket;
 	private Server server;
-	private StreamProxy streamProxy;
+	private StreamProxyMonitor streamProxy;
 	
 	private String id;
 	private String username;

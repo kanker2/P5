@@ -33,16 +33,28 @@ public class ServerListener implements Runnable{
 	public String getIp() { return socketToServer.getInetAddress().getHostAddress(); }
 	public Integer getPort() { return socketToServer.getPort(); }
 	
+	public void connectToServer() throws IOException, ClassNotFoundException, ProtocolError{
+		String clientId = stablishConnection();
+		client.setId(clientId);
+	}
+
 	public void newShareableFile(String name) {
 		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C, name);
 		streamProxy.write(m);
 	}
 	
-	public void connectToServer() throws IOException, ClassNotFoundException, ProtocolError{
-		String clientId = stablishConnection();
-		client.setId(clientId);
+	public void closeConnection() {
+		streamProxy.write(new Message("server", client.getId(), MessageType.FIN_CONEXION));
 	}
 	
+	public void setLog(Observer o) {
+		streamProxy.setLog(o);
+	}
+	
+	public void listen() {
+		(new Thread(this)).start();
+	}
+
 	private String stablishConnection() throws IOException, ClassNotFoundException, ProtocolError{
 		Message hiServer = new Message("server", client.getUsername(), MessageType.INICIAR_CONEXION);
 		streamProxy.write(hiServer);
@@ -53,20 +65,12 @@ public class ServerListener implements Runnable{
 		return clientId;
 	}
 	
-	public void closeConnection() {
-		streamProxy.write(new Message("server", client.getId(), MessageType.FIN_CONEXION));
-	}
-	
 	private void updateDownloadableFiles(Message m) {
 		Set<String> downloadableFiles = m.getFiles();
 		client.updateDownloadableFiles(downloadableFiles);
 		streamProxy.write(new Message(m.getSrc(), m.getDest(), m.nextType()));
 	}
-	
-	public void setLog(Observer o) {
-		streamProxy.setLog(o);
-	}
-	
+
 	@Override
 	public void run() {
 		while (listening) {
