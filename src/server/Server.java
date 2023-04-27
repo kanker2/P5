@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 
@@ -17,6 +16,7 @@ import common.Observable;
 import common.Observer;
 import common.manageConcurrency.ConcurrentHashMap;
 import common.manageConcurrency.MonitorAccesManager;
+import common.manageConcurrency.SemaphoreAccesManager;
 
 public class Server extends Observable implements Runnable{
 	
@@ -31,8 +31,8 @@ public class Server extends Observable implements Runnable{
 	private ServerSocket ss;
 	
 	public Server(Integer port) throws IOException{
-		filesToClients = new ConcurrentHashMap<>(new MonitorAccesManager());
-		clientListeners = new ConcurrentHashMap<>(new MonitorAccesManager());
+		filesToClients = new ConcurrentHashMap<>(new SemaphoreAccesManager());
+		clientListeners = new ConcurrentHashMap<>(new SemaphoreAccesManager());
 		
 		idGenerator = 0;
 		idsMutex = new Semaphore(1);
