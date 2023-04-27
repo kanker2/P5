@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 
-import common.Message;
-import common.MessageType;
 import common.Observable;
 import common.Observer;
 
@@ -48,26 +47,6 @@ public class Server extends Observable implements Runnable{
 		idsMutex.release();
 		return tmp.toString();
 	}
-
-	public void notifyFileActualizationToClients() {
-		notifyFileActualizationToClients(null);
-	}
-	
-	public void notifyFileActualizationToClients(String id) {
-		infoMonitor.request_read();
-		Set<String> files = filesToClientIds.keySet();
-		if (id != null) {
-			ClientListener cl = clientListeners.get(id);
-			cl.filesActualization(files);
-		}
-		else {
-			for(Map.Entry<String, ClientListener> entry : clientListeners.entrySet()) {
-				ClientListener cl = entry.getValue();
-				cl.filesActualization(files);
-			}
-		}
-		infoMonitor.release_read();
-	}
 	
 	public void addFile(String fName, String clientId) {
 		infoMonitor.request_write();
@@ -81,28 +60,50 @@ public class Server extends Observable implements Runnable{
 		}
 		infoMonitor.release_write();
 		notifyObservers("add_file");
-		notifyFileActualizationToClients();
+		notifyNewFilesToClients();
 	}
 	
-	public Map<String, String> getUsers(){
-		Map<String, String> users = new HashMap<String, String>();
+	public void notifyNewFilesToClient(String id) {
 		infoMonitor.request_read();
-		for(Map.Entry<String, ClientListener> entry : clientListeners.entrySet()) 
-			users.put(entry.getKey(), entry.getValue().getUserName());
+		Set<String> files = new HashSet<>(filesToClientIds.keySet());
+		ClientListener cl = clientListeners.get(id);
 		infoMonitor.release_read();
-		return users;
+		cl.updateFiles(files);
 	}
 	
-	public Set<String> getDownloadableFiles(){
+	public void notifyNewFilesToClients() {
 		infoMonitor.request_read();
-		Set<String> downloadableFiles = filesToClientIds.keySet();
+		Set<String> files = filesToClientIds.keySet();
+		for(Map.Entry<String, ClientListener> entry : clientListeners.entrySet()) {
+			ClientListener cl = entry.getValue();
+			cl.updateFiles(files);
+		}
 		infoMonitor.release_read();
-		return downloadableFiles;
 	}
 	
 	public void connectionStablished(String id) {
 		notifyObservers("new_connection");
-		notifyFileActualizationToClients(id);
+		notifyNewFilesToClient(id);
+	}
+	
+	public void closeConnection(String id) {
+		infoMonitor.request_write();
+		clientListeners.remove(id);
+		removeClientFiles(id);
+		infoMonitor.release_write();
+		notifyObservers("removed_connection");
+		notifyNewFilesToClients();
+	}
+	
+	private void createNewClientListener(Socket s) throws IOException, InterruptedException {
+		String id = getNewId();
+		ClientListener cl = new ClientListener(id, s, this, log);
+		
+		infoMonitor.request_write();
+		clientListeners.put(id, cl);
+		infoMonitor.release_write();
+		
+		cl.start();
 	}
 	
 	private void removeClientFiles(String id) {
@@ -118,26 +119,26 @@ public class Server extends Observable implements Runnable{
 			filesToClientIds.remove(removableFile);
 	}
 	
-	public void closeConnection(String id) {
-		infoMonitor.request_write();
-		clientListeners.remove(id);
-		removeClientFiles(id);
-		notifyObservers("removed_connection");
-		infoMonitor.release_write();
-		notifyFileActualizationToClients();
+	public Map<String, String> getUsers(){
+		Map<String, String> users = new HashMap<String, String>();
+		infoMonitor.request_read();
+		for(Map.Entry<String, ClientListener> entry : clientListeners.entrySet()) 
+			users.put(entry.getKey(), entry.getValue().getUserName());
+		infoMonitor.release_read();
+		return users;
 	}
 	
-	private void createNewClientListener(Socket s) throws IOException, InterruptedException {
-		String id = getNewId();
-		ClientListener cl = new ClientListener(id, s, this, log);
-		
-		infoMonitor.request_write();
-		clientListeners.put(id, cl);
-		infoMonitor.release_write();
-		
-		cl.start();
+	public Set<String> getDownloadableFiles(){
+		infoMonitor.request_read();
+		Set<String> downloadableFiles = filesToClientIds.keySet();
+		infoMonitor.release_read();
+		return new HashSet<>(downloadableFiles);
 	}
 	
+	public void setLog(Observer o) {
+		log = o;
+	}
+
 	@Override
 	public void run() {
 		while(true) {
@@ -149,9 +150,5 @@ public class Server extends Observable implements Runnable{
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	public void setLog(Observer o) {
-		log = o;
 	}
 }

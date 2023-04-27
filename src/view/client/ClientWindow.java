@@ -33,14 +33,18 @@ public class ClientWindow extends JFrame implements Observer{
 	
 	public ClientWindow(String ip, Integer port) {
 		obtainUserName();
-		setTitle("Client " + username);
-		
-		createMainPanel(ip, port);
-		setCloseAction();
-		
-		this.setSize(600, 400);
-		this.setLocationRelativeTo(null);
-		this.setVisible(true);
+		if (username == null) 
+			dispose();
+		else {
+			setTitle("Client " + username);
+	
+			createMainPanel(ip, port);
+			setCloseAction();
+			
+			this.setSize(600, 400);
+			this.setLocationRelativeTo(null);
+			this.setVisible(true);
+		}
 	}
 	
 	private void obtainUserName() {

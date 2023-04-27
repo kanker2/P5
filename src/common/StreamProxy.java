@@ -5,10 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import common.Message;
-import common.Observable;
-import common.Observer;
-
 public class StreamProxy extends Observable{
 	protected ObjectInputStream fin;
 	protected ObjectOutputStream fout;
@@ -38,8 +34,8 @@ public class StreamProxy extends Observable{
 	public Message read() {
 		try {
 			Message o = (Message) fin.readObject();
-			notifyObservers(o);
 			lastGoodMessage = o;
+			notifyObservers(o);
 			return o;
 		} catch(ClassNotFoundException | IOException e) {
 			notifyObservers("error");

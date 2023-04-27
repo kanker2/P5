@@ -24,22 +24,15 @@ public class Client extends Observable {
 		shareableFiles = new TreeMap<>();
 		serverListener = new ServerListener(this, ip, port);
 	}
-	
-	public String getId() { return id; }
-	public String getUsername() { return username; }
-	public Map<String, String> getShareableFiles() { return shareableFiles; }
-	public Set<String> getDownloadableFiles() {return downloadableFiles; }
-	public String getIp() { return serverListener.getIp(); }
-	public Integer getPort() { return serverListener.getPort(); }
-
-	public void setId(String id) { 
-		this.id = id;
-		notifyObservers("id_set");
-	}
 
 	public void connectToServer() throws IOException, ClassNotFoundException, ProtocolError{
 		serverListener.connectToServer();
 		serverListener.listen();
+	}
+	
+	public void closeConnection() {
+		serverListener.closeConnection();
+		notifyObservers("close_connection");
 	}
 	
 	public void newShareableFile(String name, String path) {
@@ -54,11 +47,6 @@ public class Client extends Observable {
 		notifyObservers("downloadable_files");
 	}
 	
-	public void closeConnection() {
-		serverListener.closeConnection();
-		notifyObservers("close_connection");
-	}
-	
 	public void listFiles() {
 		
 	}
@@ -66,7 +54,19 @@ public class Client extends Observable {
 	public void downloadFile(String file) {
 		
 	}
-
+	
+	public String getId() { return id; }
+	public String getUsername() { return username; }
+	public Map<String, String> getShareableFiles() { return shareableFiles; }
+	public Set<String> getDownloadableFiles() {return downloadableFiles; }
+	public String getIp() { return serverListener.getIp(); }
+	public Integer getPort() { return serverListener.getPort(); }
+	
+	public void setId(String id) { 
+		this.id = id;
+		notifyObservers("id_set");
+	}
+	
 	public void setLog(Observer o) {
 		serverListener.setLog(o);
 	}
