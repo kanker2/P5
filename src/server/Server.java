@@ -20,8 +20,8 @@ import common.manageConcurrency.SemaphoreAccesManager;
 
 public class Server extends Observable implements Runnable{
 	
-	private ConcurrentHashMap<String, Set<String>> filesToClients;
-	private ConcurrentHashMap<String, ClientListener> clientListeners;
+	private Map<String, Set<String>> filesToClients;
+	private Map<String, ClientListener> clientListeners;
 	
 	private Observer log;
 	
@@ -87,10 +87,10 @@ public class Server extends Observable implements Runnable{
 	public void closeConnection(String id) {
 		clientListeners.remove(id);
 		
-		removeClientFiles(id);
+		if (removeClientFiles(id))
+			notifyNewFilesToClients();
 
 		notifyObservers("removed_connection");
-		notifyNewFilesToClients();
 	}
 	
 	private void createNewClientListener(Socket s) throws IOException, InterruptedException {
@@ -102,10 +102,11 @@ public class Server extends Observable implements Runnable{
 		cl.start();
 	}
 	
-	private void removeClientFiles(String id) {
+	//Returns true if any file was removed from the table
+	private boolean removeClientFiles(String id) {
 		Set<String> removableFiles = new TreeSet<>();
 		
-		Set<Entry<String, Set<String>>> entrySet = filesToClients.entrySet();
+		Set<Entry<String, Set<String>>> entrySet = new HashSet<>(filesToClients.entrySet());
 
 		for(Map.Entry<String, Set<String>> entry : entrySet) {
 			Set<String> clientsWithFile = entry.getValue();
@@ -116,6 +117,7 @@ public class Server extends Observable implements Runnable{
 		
 		for(String removableFile : removableFiles)
 			filesToClients.remove(removableFile);
+		return !removableFiles.isEmpty();
 	}
 	
 	public Map<String, String> getUsers(){
