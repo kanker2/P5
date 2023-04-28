@@ -17,6 +17,7 @@ import common.Observer;
 import common.manageConcurrency.ConcurrentHashMap;
 import common.manageConcurrency.MonitorAccesManager;
 import common.manageConcurrency.SemaphoreAccesManager;
+import main.Main;
 
 public class Server extends Observable implements Runnable{
 	
@@ -91,6 +92,32 @@ public class Server extends Observable implements Runnable{
 			notifyNewFilesToClients();
 
 		notifyObservers("removed_connection");
+	}
+	
+	public String startTransfer(String file) {
+		ClientListener clWhoShares = null;
+		Set<String> idsWhoCanShare = filesToClients.get(file);
+		if (idsWhoCanShare == null)
+			idsWhoCanShare = new HashSet<>();
+		else
+			idsWhoCanShare = new HashSet<>(idsWhoCanShare);
+
+		//Buscamos al cliente que vaya a transmitir el archivo 
+		for (String clientId : idsWhoCanShare) {
+			clWhoShares = clientListeners.get(clientId);
+			if (clWhoShares.free()) 
+				break;
+			else
+				clWhoShares = null;
+		}
+		if (clWhoShares == null)
+			return null;
+		
+		Integer portUsed = Main.FILE_SHARING_PORT;
+		clWhoShares.prepareUpload(file, portUsed);
+		
+		String addres = clWhoShares.getIp() + ":" + portUsed;
+		return addres;
 	}
 	
 	private void createNewClientListener(Socket s) throws IOException, InterruptedException {

@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import common.Observable;
 import common.Observer;
 import common.ProtocolError;
+import main.Main;
 
 public class Client extends Observable {
 	private String id;
@@ -51,6 +52,22 @@ public class Client extends Observable {
 		notifyObservers("downloadable_files");
 	}
 	
+	public void startFileDownload(String ip, Integer port) {
+		Receptor r = new Receptor(ip, port, this, serverListener);
+		r.start();
+	}
+	
+	public void failedDownload() {
+		notifyObservers("failed_download");
+	}
+	
+	public void succesDownload(File f) {
+		serverListener.downloadFinished();
+		notifyObservers("success_download:" + f.getFileName());
+		saveFile(f);
+		System.out.println(f);
+	}
+	
 	public void listFiles() {
 		
 	}
@@ -61,6 +78,7 @@ public class Client extends Observable {
 	public Set<String> getDownloadableFiles() {return downloadableFiles; }
 	public String getIp() { return serverListener.getIp(); }
 	public Integer getPort() { return serverListener.getPort(); }
+	public String getPath(String filename) { return shareableFiles.get(filename); }
 	
 	public void setId(String id) { 
 		this.id = id;
@@ -69,5 +87,10 @@ public class Client extends Observable {
 	
 	public void setLog(Observer o) {
 		serverListener.setLog(o);
+	}
+	
+	private void saveFile(File f) {
+		String path = Main.DEFAULT_DOWNLOADS_DIR + "/" + f.getFileName();
+		newShareableFile(f.getFileName(), path);
 	}
 }

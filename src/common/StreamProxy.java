@@ -54,4 +54,29 @@ public class StreamProxy extends Observable{
 			notifyObservers("error");
 		}
 	}
+	
+	public Message read(Socket s) {
+		Message m = null;
+		try {
+			ObjectInputStream fin = new ObjectInputStream(s.getInputStream());
+			m = (Message) fin.readObject(); 
+			notifyObservers(m);
+			fin.close();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return m;
+	}
+	
+	public void write(Message m, Socket s) {
+		try {
+			ObjectOutputStream fout = new ObjectOutputStream(s.getOutputStream());
+			fout.writeObject(m);
+			fout.flush();
+			notifyObservers(m);
+			fout.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

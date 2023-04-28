@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 import common.Message;
 import common.MessageType;
@@ -17,7 +18,7 @@ import common.ProtocolError;
 import common.StreamProxy;
 
 public class ServerListener implements Runnable{
-	
+
 	private Client client;
 	private boolean listening;
 	private Socket socketToServer;
@@ -51,10 +52,21 @@ public class ServerListener implements Runnable{
 
 	public void downloadFile(String file) {
 		Message serverReq = new Message("server", client.getId(), MessageType.DESCARGA_FICHERO, file);
+		streamProxy.write(serverReq);
 	}
 	
 	public void newShareableFile(String name) {
 		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C, name);
+		streamProxy.write(m);
+	}
+	
+	public void uploadFinished() {
+		Message m = new Message("server", client.getId(), MessageType.FIN_EMISION_FICHERO);
+		streamProxy.write(m);
+	}
+	
+	public void downloadFinished() {
+		Message m = new Message("server", client.getId(), MessageType.FIN_DESCARGA_FICHERO);
 		streamProxy.write(m);
 	}
 	
@@ -64,8 +76,22 @@ public class ServerListener implements Runnable{
 		streamProxy.write(new Message(m.getSrc(), m.getDest(), m.nextType()));
 	}
 	
+	private void startFileUpload(String filename, Integer port) {
+		Emisor e = new Emisor(filename, client.getPath(filename), port, this);
+		e.start();
+	}
+	
+	public void write(Message m, Socket s) {
+		streamProxy.write(m, s);
+	}
+	
+	public Message read(Socket s) {
+		return streamProxy.read(s);
+	}
+	
 	public String getIp() { return socketToServer.getInetAddress().getHostAddress(); }
 	public Integer getPort() { return socketToServer.getPort(); }
+	public String getId() { return client.getId(); }
 	
 	public void setLog(Observer o) {
 		streamProxy.setLog(o);
@@ -93,6 +119,21 @@ public class ServerListener implements Runnable{
 					break;
 				case ACTUALIZAR_FICHEROS:
 					updateDownloadableFiles(m);
+					break;
+				case PETICION_EMISION_FICHERO:
+					String file = m.getText();
+					Integer port = m.getPort(); 
+					startFileUpload(file, port);
+					break;
+				case CONF_DESCARGA_FICHERO:
+					String text = m.getText();
+					//Si todo a ido bien y se puede descargar el archivo recibimos un string de la siguiente forma
+					//[ip]:[port]
+					//En caso contrario un string con el valor error
+					if (text.equals("error"))
+						client.failedDownload();
+					else 
+						client.startFileDownload(text.split(":")[0], Integer.parseInt(text.split(":")[1]));
 					break;
 				default:
 					break;

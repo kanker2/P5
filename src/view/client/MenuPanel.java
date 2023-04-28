@@ -19,6 +19,7 @@ public class MenuPanel extends JPanel implements Observer{
 	private Client c;
 	private JFrame parent;
 	private JLabel ip, port, username, clientId;
+	private JLabel downloadStatus;
 	
 	public MenuPanel(JFrame parent, Client c) {
 		super(new BorderLayout());
@@ -27,7 +28,12 @@ public class MenuPanel extends JPanel implements Observer{
 		this.c = c;
 		c.addObserver(this);
 		
-		add(new JLabel("Menu"), BorderLayout.NORTH);
+		JLabel title = new JLabel("Menu");
+		downloadStatus = new JLabel();
+		JPanel titlePanel = new JPanel(new GridLayout(1,2));
+		titlePanel.add(title);
+		titlePanel.add(downloadStatus);
+		add(titlePanel, BorderLayout.NORTH);
 		add(createActionsPanel(), BorderLayout.CENTER);
 	}
 	
@@ -84,5 +90,9 @@ public class MenuPanel extends JPanel implements Observer{
 	public void update(Observable o, Object arg) {
 		if (arg instanceof String && (String) arg == "id_set")
 			clientId.setText("ClientId: " + c.getId());
+		else if (arg instanceof String && (String) arg == "failed_download")
+			downloadStatus.setText("Download failed");
+		else if (arg instanceof String && ((String) arg).split(":")[0] == "success_download")
+			downloadStatus.setText("Succesfully downloaded " + " " + ((String) arg).split(":")[1]);
 	}
 }

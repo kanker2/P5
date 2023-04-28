@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import client.File;
+
 public class Message implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private MessageType type;
@@ -11,21 +13,27 @@ public class Message implements Serializable{
 	private String fileName;
 	private String ip; private Integer port;
 	private Set<String> files;
+	private File file;
 	
 	public Message(String dest, String src, MessageType type, String fileName) {
 		this(dest,src,type);
 		this.fileName = fileName;
 	}
 	
-	public Message(String dest, String src, MessageType type, String ip, Integer port) {
+	public Message(String dest, String src, MessageType type, String filename, Integer port) {
 		this(dest,src,type);
-		this.ip = ip;
+		this.fileName = filename;
 		this.port = port;
 	}
 	
 	public Message(String dest, String src, MessageType type, Set<String> files) {
 		this(dest,src,type);
 		this.files = new HashSet<>(files);
+	}
+	
+	public Message(String dest, String src, MessageType type, File file) {
+		this(dest, src, type);
+		this.file = file; 
 	}
 	
 	public Message(String dest, String src, MessageType type) {
@@ -41,6 +49,7 @@ public class Message implements Serializable{
 	public String getIp() { return ip; }
 	public Integer getPort() { return port; }
 	public Set<String> getFiles() { return files; }
+	public File getFile() { return file; }
 
 	public MessageType nextType() {
 		switch(type) {
