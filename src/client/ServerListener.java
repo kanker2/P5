@@ -49,6 +49,10 @@ public class ServerListener implements Runnable{
 		streamProxy.write(new Message("server", client.getId(), MessageType.FIN_CONEXION));
 	}
 
+	public void downloadFile(String file) {
+		Message serverReq = new Message("server", client.getId(), MessageType.DESCARGA_FICHERO, file);
+	}
+	
 	public void newShareableFile(String name) {
 		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C, name);
 		streamProxy.write(m);

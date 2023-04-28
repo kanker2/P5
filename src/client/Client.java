@@ -35,6 +35,10 @@ public class Client extends Observable {
 		notifyObservers("close_connection");
 	}
 	
+	public void downloadFile(String file) {
+		serverListener.downloadFile(file);
+	}
+	
 	public void newShareableFile(String name, String path) {
 		shareableFiles.put(name, path);
 		notifyObservers("owned_files");
@@ -48,10 +52,6 @@ public class Client extends Observable {
 	}
 	
 	public void listFiles() {
-		
-	}
-	
-	public void downloadFile(String file) {
 		
 	}
 	

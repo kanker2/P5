@@ -36,14 +36,18 @@ public class ClientListener extends Thread{
 	}
 	
 	public void addFile(Message m) {
-		String fileName = m.getFileName();
+		String fileName = m.getText();
 		String clientId = m.getSrc();
 		server.addFile(fileName, clientId);
 		streamProxy.write(new Message(clientId, "server", m.nextType()));
 	}
 	
+	public void startDownload(Message m) {
+	}
+	
 	public String getClientId() { return id; }
 	public String getUserName() { return username; }
+	public String getDestIp() { return socket.getRemoteSocketAddress().toString(); }
 	
 	private void startConnection(Message m) throws InterruptedException, IOException {
 		username = m.getSrc();
@@ -77,6 +81,8 @@ public class ClientListener extends Thread{
 					listening = false;
 					closeConnection(m);
 					break;
+				case DESCARGA_FICHERO:
+					startDownload(m);
 				default:
 					break;
 				}

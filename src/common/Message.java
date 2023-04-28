@@ -37,7 +37,7 @@ public class Message implements Serializable{
 	public MessageType getType() { return type; }
 	public String getDest() { return dest; }
 	public String getSrc() { return src; }
-	public String getFileName() { return fileName; }
+	public String getText() { return fileName; }
 	public String getIp() { return ip; }
 	public Integer getPort() { return port; }
 	public Set<String> getFiles() { return files; }

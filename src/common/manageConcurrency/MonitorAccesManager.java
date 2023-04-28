@@ -1,8 +1,8 @@
 package common.manageConcurrency;
 
 import java.util.concurrent.locks.Condition;
-
-
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MonitorAccesManager implements AccesManager {
 	
@@ -13,10 +13,10 @@ public class MonitorAccesManager implements AccesManager {
 	
 	public MonitorAccesManager() {
 		nw = nr = 0;
-		e = new BakeryLock();
+		e = new ReentrantLock();
 		okToRead = e.newCondition(); okToWrite = e.newCondition();
 	}
-
+	
 	public void requestRead() {
 		e.lock();
 		while (nw > 0) {
