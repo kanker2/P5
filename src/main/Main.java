@@ -1,6 +1,5 @@
 package main;
 
-import client.File;
 import view.MainWindow;
 
 public class Main {

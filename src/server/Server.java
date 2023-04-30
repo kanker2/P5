@@ -21,23 +21,20 @@ import main.Main;
 
 public class Server extends Observable implements Runnable{
 	
-	private Map<String, Set<String>> filesToClients;
-	private Map<String, ClientListener> clientListeners;
-	
+	private Map<String, Set<String>> filesToClients; 		//Nombre de fichero, Conjunto de clientes que lo tiene
+	private Map<String, ClientListener> clientListeners;	//Id de cliente, el clientListener asociado
 	private Observer log;
 	
-	Semaphore idsMutex;
-	Integer idGenerator;
+	private Semaphore idsMutex;
+	private Integer idGenerator;
 	
 	private ServerSocket ss;
 	
 	public Server(Integer port) throws IOException{
 		filesToClients = new ConcurrentHashMap<>(new SemaphoreAccesManager());
-		clientListeners = new ConcurrentHashMap<>(new SemaphoreAccesManager());
-		
+		clientListeners = new ConcurrentHashMap<>(new SemaphoreAccesManager());	
 		idGenerator = 0;
 		idsMutex = new Semaphore(1);
-		
 		ss = new ServerSocket(port);
 	}
 	
@@ -49,6 +46,7 @@ public class Server extends Observable implements Runnable{
 		return tmp.toString();
 	}
 	
+	//Actualiza la tabla de ficheros y clientes que lo tiene
 	public void addFile(String fName, String clientId) {
 		Set<String> clientsWithFile;
 		if (!filesToClients.containsKey(fName))
@@ -64,16 +62,15 @@ public class Server extends Observable implements Runnable{
 		notifyNewFilesToClients();
 	}
 	
+
 	public void notifyNewFilesToClient(String id) {
 		Set<String> files = new HashSet<>(filesToClients.keySet());
-
 		ClientListener cl = clientListeners.get(id);
 		cl.updateFiles(files);
 	}
 	
 	public void notifyNewFilesToClients() {
-		Set<String> files = new HashSet<>(filesToClients.keySet());
-		
+		Set<String> files = new HashSet<>(filesToClients.keySet());		
 		Collection<ClientListener> cls = new HashSet<>(clientListeners.values());
 		
 		for(ClientListener cl : cls) 
@@ -94,6 +91,7 @@ public class Server extends Observable implements Runnable{
 		notifyObservers("removed_connection");
 	}
 	
+	//Server busca un cliente que pueda compartir dicho fichero
 	public String startTransfer(String file) {
 		ClientListener clWhoShares = null;
 		Set<String> idsWhoCanShare = filesToClients.get(file);
@@ -114,7 +112,8 @@ public class Server extends Observable implements Runnable{
 			return null;
 		
 		Integer portUsed = Main.FILE_SHARING_PORT;
-		clWhoShares.prepareUpload(file, portUsed);
+		//Servidor manda PETICION_EMISION_FICHERO al cliente que puede compartir el fichero
+		clWhoShares.prepareUpload(file, portUsed); 
 		
 		String addres = clWhoShares.getIp() + ":" + portUsed;
 		return addres;
@@ -158,8 +157,7 @@ public class Server extends Observable implements Runnable{
 	}
 	
 	public Set<String> getDownloadableFiles(){
-		Set<String> downloadableFiles = new HashSet<>(filesToClients.keySet());
-		
+		Set<String> downloadableFiles = new HashSet<>(filesToClients.keySet());	
 		return downloadableFiles;
 	}
 	
@@ -171,8 +169,7 @@ public class Server extends Observable implements Runnable{
 	public void run() {
 		while(true) {
 			try {
-				Socket s = ss.accept();
-				
+				Socket s = ss.accept();				
 				createNewClientListener(s);
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();

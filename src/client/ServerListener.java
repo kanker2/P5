@@ -20,7 +20,7 @@ import common.StreamProxy;
 public class ServerListener implements Runnable{
 
 	private Client client;
-	private boolean listening;
+	private boolean listening;		
 	private Socket socketToServer;
 	private StreamProxy streamProxy;
 	
@@ -31,11 +31,13 @@ public class ServerListener implements Runnable{
 		streamProxy = new StreamProxy(socketToServer);
 	}
 	
+	//Asigna un nuevo Id al cliente asociado a este ServerListener
 	public void connectToServer() throws IOException, ClassNotFoundException, ProtocolError{
 		String clientId = stablishConnection();
-		client.setId(clientId);
+		client.setId(clientId);	
 	}
 	
+	//Establece conexion con Server y recupera un nuevo Id de cliente
 	private String stablishConnection() throws IOException, ClassNotFoundException, ProtocolError{
 		Message hiServer = new Message("server", client.getUsername(), MessageType.INICIAR_CONEXION);
 		streamProxy.write(hiServer);
@@ -50,11 +52,13 @@ public class ServerListener implements Runnable{
 		streamProxy.write(new Message("server", client.getId(), MessageType.FIN_CONEXION));
 	}
 
+	//Peticion de descarga de fichero al servidor
 	public void downloadFile(String file) {
 		Message serverReq = new Message("server", client.getId(), MessageType.DESCARGA_FICHERO, file);
 		streamProxy.write(serverReq);
 	}
 	
+	//Notifica al servidor de que el cliente tiene un nuevo fichero para compartir
 	public void newShareableFile(String name) {
 		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C, name);
 		streamProxy.write(m);
@@ -70,6 +74,7 @@ public class ServerListener implements Runnable{
 		streamProxy.write(m);
 	}
 	
+	//Actualiza los ficheros que el cliente en cuestion puede descargar
 	private void updateDownloadableFiles(Message m) {
 		Set<String> downloadableFiles = m.getFiles();
 		client.updateDownloadableFiles(downloadableFiles);
@@ -81,13 +86,17 @@ public class ServerListener implements Runnable{
 		e.start();
 	}
 	
+	
+	/*---------------------------------------------------------------*/
+	//Metodos para la emision de ficheros entre clientes de forma p2p
 	public void write(Message m, Socket s) {
-		streamProxy.write(m, s);
 	}
 	
 	public Message read(Socket s) {
 		return streamProxy.read(s);
 	}
+	/*---------------------------------------------------------------*/
+
 	
 	public String getIp() { return socketToServer.getInetAddress().getHostAddress(); }
 	public Integer getPort() { return socketToServer.getPort(); }
@@ -97,6 +106,7 @@ public class ServerListener implements Runnable{
 		streamProxy.setLog(o);
 	}
 	
+	//ServerListener empieza a escuchar
 	public void listen() {
 		(new Thread(this)).start();
 	}

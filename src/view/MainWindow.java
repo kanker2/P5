@@ -64,6 +64,8 @@ public class MainWindow extends JFrame{
 		JButton b2 = new JButton("Crear cliente");
 		b2.addActionListener((ActionEvent e) -> changeCard(INIT_CLIENT_CARD_NAME));
 		
+		b1.setFocusable(false);
+		b2.setFocusable(false);
 		buttonsPanel.add(b1);
 		buttonsPanel.add(b2);
 		

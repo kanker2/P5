@@ -13,11 +13,10 @@ public class File implements Serializable{
 	private boolean loaded;
 	
 	public File(String filename, String path) {
-		loaded = false;
-		
+		this.loaded = false;		
 		this.filename = filename;
 		this.path = path;
-		lines = new ArrayList<>();
+		this.lines = new ArrayList<>();
 	}
 
 	public String getFileName() { return filename; }

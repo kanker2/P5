@@ -1,9 +1,6 @@
 package client;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -26,41 +23,48 @@ public class Client extends Observable {
 		serverListener = new ServerListener(this, ip, port);
 	}
 
+	//Cliente se conecta por primera vez
 	public void connectToServer() throws IOException, ClassNotFoundException, ProtocolError{
-		serverListener.connectToServer();
-		serverListener.listen();
+		serverListener.connectToServer(); //Establece comunicacion con server para adquirir un id de usuario
+		serverListener.listen();		  //El hilo empieza a escuchar
 	}
 	
+	//Cliente cierra sesion
 	public void closeConnection() {
 		serverListener.closeConnection();
 		notifyObservers("close_connection");
 	}
 	
+	//Cliente desea descargar un fichero del servidor
 	public void downloadFile(String file) {
 		serverListener.downloadFile(file);
 	}
 	
+	//Cliente ayande nuevo fichero para compartir
 	public void newShareableFile(String name, String path) {
 		shareableFiles.put(name, path);
-		notifyObservers("owned_files");
-		
+		notifyObservers("owned_files");	
 		serverListener.newShareableFile(name);
 	}
 	
+	//Actualiza lista de ficheros disponibles para descargar
 	public void updateDownloadableFiles(Set<String> downloadableFiles) {
 		this.downloadableFiles = downloadableFiles;
 		notifyObservers("downloadable_files");
 	}
 	
+	//Comienza descarga de un fichero en un nuevo hilo
 	public void startFileDownload(String ip, Integer port) {
 		Receptor r = new Receptor(ip, port, this, serverListener);
 		r.start();
 	}
 	
+	//Notifica fallo de descarga
 	public void failedDownload() {
 		notifyObservers("failed_download");
 	}
 	
+	//Notifica descarga exitosa
 	public void succesDownload(File f) {
 		serverListener.downloadFinished();
 		notifyObservers("success_download:" + f.getFileName());

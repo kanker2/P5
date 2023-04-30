@@ -19,7 +19,7 @@ public class ClientListener extends Thread{
 	private String username;
 	
 	private Boolean listening;
-	private Boolean bussyUploading;
+	private Boolean busyUploading;
 	
 	public ClientListener(String id, Socket socket, Server s, Observer log) throws IOException {
 		this.id = id;
@@ -29,7 +29,7 @@ public class ClientListener extends Thread{
 		streamProxy.setLog(log);
 
 		listening = true;
-		bussyUploading = false;
+		busyUploading = false;
 	}
 	
 	public void updateFiles(Set<String> files) {
@@ -38,7 +38,7 @@ public class ClientListener extends Thread{
 	}
 	
 	public void prepareUpload(String file, Integer port) {
-		bussyUploading = true;
+		busyUploading = true;
 		Message m = new Message(id, "server", MessageType.PETICION_EMISION_FICHERO, file, port);
 		streamProxy.write(m);
 	}
@@ -59,7 +59,7 @@ public class ClientListener extends Thread{
 	public String getClientId() { return id; }
 	public String getUserName() { return username; }
 	public String getDestIp() { return socket.getRemoteSocketAddress().toString(); }
-	public boolean free() { return !bussyUploading; }
+	public boolean free() { return !busyUploading; }
 	
 	private void startConnection(Message m) throws InterruptedException, IOException {
 		username = m.getSrc();
@@ -67,16 +67,18 @@ public class ClientListener extends Thread{
 		server.connectionStablished(id.toString());
 	}
 	
+	//Busca en el Servidor que clientes puede compartir dicho fichero
 	private void startDownload(Message m) {
 		String file = m.getText();
-		String clientInfoWhoShares = server.startTransfer(file);
+		//Devuelve info del cliente que puede compartir el fichero en formato ip:port
+		String clientInfoWhoShares = server.startTransfer(file); 
 		Message mResponse;
 
 		if (clientInfoWhoShares == null)
 			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), "error");
 		else {
-			bussyUploading = true;
-			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), clientInfoWhoShares);
+			busyUploading = true;
+			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), clientInfoWhoShares); //CONF_DESCARGA_FICHERO
 		}
 		
 		streamProxy.write(mResponse);
@@ -111,10 +113,10 @@ public class ClientListener extends Thread{
 				case DESCARGA_FICHERO:
 					startDownload(m);
 				case FIN_DESCARGA_FICHERO:
-					bussyUploading = false;
+					busyUploading = false;
 					break;
 				case FIN_EMISION_FICHERO:
-					bussyUploading = false;
+					busyUploading = false;
 					break;
 				default:
 					break;
