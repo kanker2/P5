@@ -93,6 +93,7 @@ public class ServerListener implements Runnable{
 	/*---------------------------------------------------------------*/
 	//Metodos para la emision de ficheros entre clientes de forma p2p
 	public void write(Message m, Socket s) {
+		streamProxy.write(m, s);
 	}
 	
 	public Message read(Socket s) {

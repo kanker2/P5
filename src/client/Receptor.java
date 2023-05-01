@@ -1,10 +1,10 @@
 package client;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 
 import common.Message;
+import common.StreamProxy;
 
 public class Receptor extends Thread {
 	private String ip;

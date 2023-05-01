@@ -6,6 +6,7 @@ import java.net.Socket;
 
 import common.Message;
 import common.MessageType;
+import common.StreamProxy;
 
 public class Emisor extends Thread{
 	private String path;
@@ -40,7 +41,7 @@ public class Emisor extends Thread{
 			serverListener.write(m, s);
 			System.out.println("Emisor: Lista emision fichero");
 			m = serverListener.read(s);
-			System.out.println("Emisor: Conf Lista emison fichero");
+			System.out.println("Emisor: Conf Lista emision fichero");
 
 			serverListener.uploadFinished();
 			

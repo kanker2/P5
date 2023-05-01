@@ -37,4 +37,13 @@ public class File implements Serializable{
 		
 		loaded = true;
 	}
+	
+	public String toString() {
+		
+		StringBuilder s = new StringBuilder();
+		for (String line : lines) {
+			s.append(line);
+		}
+		return s.toString();
+	}
 }
