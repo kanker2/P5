@@ -11,7 +11,6 @@ public class Receptor extends Thread {
 	private Integer port;
 	private Client c;
 	private ServerListener serverListener;
-	private boolean connected = false;
 
 	public Receptor(String ip, Integer port, Client c, ServerListener serverListener) {
 		this.ip = ip;
@@ -23,11 +22,9 @@ public class Receptor extends Thread {
 	@Override
 	public void run() {
 
-		while (!connected) {
 			try {
 				Socket s = new Socket(ip, port); // Establece conexion con emisor
 				System.out.println("Receptor: conexion establecida");
-				this.connected = true;
 				Message m = serverListener.read(s); // Recibe fichero del emisor
 				System.out.println("Receptor: fichero recibido");
 				File f = m.getFile();
@@ -49,7 +46,6 @@ public class Receptor extends Thread {
 				}
 				e.printStackTrace();
 			}
-		}
 
 	}
 }

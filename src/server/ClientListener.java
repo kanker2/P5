@@ -37,9 +37,9 @@ public class ClientListener extends Thread{
 		streamProxy.write(m);
 	}
 	
-	public void prepareUpload(String file, Integer port) {
+	public void prepareUpload(String file, Integer port, String id, String addres) {
 		busyUploading = true;
-		Message m = new Message(id, "server", MessageType.PETICION_EMISION_FICHERO, file, port);
+		Message m = new Message(this.id, "server", MessageType.PETICION_EMISION_FICHERO, file, port, Integer.parseInt(id), addres);
 		streamProxy.write(m);
 	}
 	
@@ -71,17 +71,21 @@ public class ClientListener extends Thread{
 	private void startDownload(Message m) {
 		String file = m.getText();
 		//Devuelve info del cliente que puede compartir el fichero en formato ip:port
-		String clientInfoWhoShares = server.startTransfer(file); 
-		Message mResponse;
-
-		if (clientInfoWhoShares == null)
-			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), "error");
-		else {
+		if (server.startTransfer(file, m.getSrc())) {
 			busyUploading = true;
-			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), clientInfoWhoShares); //CONF_DESCARGA_FICHERO
-		}
-		
-		streamProxy.write(mResponse);
+		}; 
+
+//		String clientInfoWhoShares; //		
+//		Message mResponse;
+//
+//		if (clientInfoWhoShares == null)
+//			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), "error");
+//		else {
+//			busyUploading = true;
+//			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), clientInfoWhoShares); //CONF_DESCARGA_FICHERO
+//		}
+//		
+//		streamProxy.write(mResponse);
 	}
 	
 	private void closeConnection(Message m) {
@@ -92,6 +96,17 @@ public class ClientListener extends Thread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public StreamProxyMonitor getStream() {
+		return this.streamProxy;
+	}
+	
+	//Envia de vuelta la confirmacion de descarga de fichero al cliente que habia pedido la descarga
+	private void sendToClientListener(Message m) {
+		ClientListener cl = server.getClientListener(m.getId().toString());
+		Message msg = new Message(cl.getClientId(), "servidor", MessageType.CONF_DESCARGA_FICHERO, m.getAddres());
+		cl.getStream().write(msg);
 	}
 	
 	@Override
@@ -117,6 +132,9 @@ public class ClientListener extends Thread{
 					break;
 				case FIN_EMISION_FICHERO:
 					busyUploading = false;
+					break;
+				case CONF_PETICION_EMISION_FICHERO:
+					sendToClientListener(m);
 					break;
 				default:
 					break;

@@ -22,19 +22,23 @@ public class Emisor extends Thread{
 		(new Thread(() -> file.uploadFileContent() )).start(); 
 	}
 	
+	public boolean isFileLoaded() {
+		return this.file.loaded();
+	}
+	
 	@Override
 	public void run() {
 		try {
 			ServerSocket ss = new ServerSocket(port);
 			Socket s = ss.accept();
-			System.out.println("Emisor: conectado en purto " + port);
+			System.out.println("Emisor: conectado en puerto " + port);
 			
 			while (!file.loaded());
 			System.out.println("Emisor: Fichero cargado!");
 			
 			Message m = new Message("cliente", serverListener.getId(), MessageType.LISTA_EMISION_FICHERO, file);
 			serverListener.write(m, s);
-			System.out.println("Emisor: Lista emison fichero");
+			System.out.println("Emisor: Lista emision fichero");
 			m = serverListener.read(s);
 			System.out.println("Emisor: Conf Lista emison fichero");
 

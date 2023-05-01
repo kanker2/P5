@@ -14,6 +14,8 @@ public class Message implements Serializable{
 	private String ip; private Integer port;
 	private Set<String> files;
 	private File file;
+	private Integer id;
+	private String addres;
 	
 	public Message(String dest, String src, MessageType type, String fileName) {
 		this(dest,src,type);
@@ -24,6 +26,27 @@ public class Message implements Serializable{
 		this(dest,src,type);
 		this.fileName = filename;
 		this.port = port;
+	}
+	
+	public Message(String dest, String src, MessageType type, String filename, Integer port, Integer id) {
+		this(dest,src,type);
+		this.fileName = filename;
+		this.port = port;
+		this.id = id;
+	}
+	
+	public Message(String dest, String src, MessageType type, Integer id, String addres) {
+		this(dest,src,type);
+		this.id = id;
+		this.addres = addres;
+	}
+	
+	public Message(String dest, String src, MessageType type, String filename, Integer port, Integer id, String addres) {
+		this(dest,src,type);
+		this.fileName = filename;
+		this.port = port;
+		this.id = id;
+		this.addres = addres;
 	}
 	
 	public Message(String dest, String src, MessageType type, Set<String> files) {
@@ -50,6 +73,8 @@ public class Message implements Serializable{
 	public Integer getPort() { return port; }
 	public Set<String> getFiles() { return files; }
 	public File getFile() { return file; }
+	public Integer getId() {return this.id;}
+	public String getAddres() {return this.addres;}
 
 	public MessageType nextType() {
 		switch(type) {

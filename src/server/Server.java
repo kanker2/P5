@@ -92,13 +92,9 @@ public class Server extends Observable implements Runnable{
 	}
 	
 	//Server busca un cliente que pueda compartir dicho fichero
-	public String startTransfer(String file) {
+	public boolean startTransfer(String file, String id) {
 		ClientListener clWhoShares = null;
-		Set<String> idsWhoCanShare = filesToClients.get(file);
-		if (idsWhoCanShare == null)
-			idsWhoCanShare = new HashSet<>();
-		else
-			idsWhoCanShare = new HashSet<>(idsWhoCanShare);
+		HashSet<String> idsWhoCanShare = new HashSet<String>(filesToClients.get(file));
 
 		//Buscamos al cliente que vaya a transmitir el archivo 
 		for (String clientId : idsWhoCanShare) {
@@ -109,14 +105,14 @@ public class Server extends Observable implements Runnable{
 				clWhoShares = null;
 		}
 		if (clWhoShares == null)
-			return null;
+			return false;
 		
 		Integer portUsed = Main.FILE_SHARING_PORT;
 		//Servidor manda PETICION_EMISION_FICHERO al cliente que puede compartir el fichero
-		clWhoShares.prepareUpload(file, portUsed); 
-		
 		String addres = clWhoShares.getIp() + ":" + portUsed;
-		return addres;
+		clWhoShares.prepareUpload(file, portUsed, id, addres); 
+	
+		return true;
 	}
 	
 	private void createNewClientListener(Socket s) throws IOException, InterruptedException {
@@ -163,6 +159,10 @@ public class Server extends Observable implements Runnable{
 	
 	public void setLog(Observer o) {
 		log = o;
+	}
+	
+	public ClientListener getClientListener(String id) {
+		return clientListeners.get(id);
 	}
 
 	@Override
