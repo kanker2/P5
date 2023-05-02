@@ -38,13 +38,13 @@ public class ClientListener extends Thread{
 		streamProxy.write(m);
 	}
 	
-	public void prepareUpload(String file, Integer port, String id, String addres) {
+	public void prepareUpload(String file, Integer port, String idReceiver, String ip) {
 		busyUploading = true;
 		Message m = new Message(this.id, "server", MessageType.PETICION_EMISION_FICHERO);
 		m.setText(file);
 		m.setPort(port);
-		m.setId(id);
-		m.setAddres(addres);
+		m.setId(idReceiver);
+		m.setIp(ip);
 		streamProxy.write(m);
 	}
 	
@@ -75,8 +75,9 @@ public class ClientListener extends Thread{
 	//Busca en el Servidor que clientes puede compartir dicho fichero
 	private void startDownload(Message m) {
 		String file = m.getText();
+		String idReceiver = m.getSrc();
 		//Devuelve info del cliente que puede compartir el fichero en formato ip:port
-		if (server.startTransfer(file, m.getSrc())) 
+		if (server.startTransfer(file, idReceiver)) 
 			busyUploading = true;
 		else {
 			Message response = new Message(m.getSrc(), m.getDest(), MessageType.CONF_DESCARGA_FICHERO);
@@ -110,8 +111,9 @@ public class ClientListener extends Thread{
 	//Envia de vuelta la confirmacion de descarga de fichero al cliente que habia pedido la descarga
 	private void sendToClientListener(Message m) {
 		ClientListener cl = server.getClientListener(m.getId());
-		Message msg = new Message(cl.getClientId(), "servidor", MessageType.CONF_DESCARGA_FICHERO);
-		msg.setAddres(m.getAddres());
+		Message msg = new Message(cl.getClientId(), "server", MessageType.CONF_DESCARGA_FICHERO);
+		msg.setPort(m.getPort());
+		msg.setIp(m.getIp());
 		cl.streamProxy.write(msg);
 	}
 	

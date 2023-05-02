@@ -93,7 +93,7 @@ public class Server extends Observable implements Runnable{
 	}
 	
 	//Server busca un cliente que pueda compartir dicho fichero
-	public boolean startTransfer(String file, String id) {
+	public boolean startTransfer(String file, String idReceiver) {
 		ClientListener clWhoShares = null;
 		HashSet<String> idsWhoCanShare = new HashSet<String>(filesToClients.get(file));
 
@@ -110,8 +110,8 @@ public class Server extends Observable implements Runnable{
 		
 		Integer portUsed = Main.FILE_SHARING_PORT;
 		//Servidor manda PETICION_EMISION_FICHERO al cliente que puede compartir el fichero
-		String addres = clWhoShares.getIp() + ":" + portUsed;
-		clWhoShares.prepareUpload(file, portUsed, id, addres); 
+		String ip = clWhoShares.getIp();
+		clWhoShares.prepareUpload(file, portUsed, idReceiver, ip);
 	
 		return true;
 	}

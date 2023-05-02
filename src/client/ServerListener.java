@@ -83,13 +83,14 @@ public class ServerListener implements Runnable{
 		streamProxy.write(new Message(m.getSrc(), m.getDest(), m.nextType()));
 	}
 	
-	private void startFileUpload(String filename, Integer port, String id, String addres) {
+	private void startFileUpload(String filename, Integer port, String id, String ip) {
 		Emisor e = new Emisor(filename, client.getPath(filename), port, this);
 		e.start();
-		while(!e.isFileLoaded());
+		while(!e.readyToConnect());
 		Message m = new Message("server", client.getId(), MessageType.CONF_PETICION_EMISION_FICHERO);
 		m.setId(id);
-		m.setAddres(addres);
+		m.setIp(ip);
+		m.setPort(port);
 		streamProxy.write(m);	
 		
 	}
@@ -143,8 +144,8 @@ public class ServerListener implements Runnable{
 					String file = m.getText();
 					Integer port = m.getPort(); 
 					String sendToClientId = m.getId();
-					String addres = m.getAddres();
-					startFileUpload(file, port, sendToClientId,addres );
+					String ip = m.getIp();
+					startFileUpload(file, port, sendToClientId,ip);
 					break;
 				case CONF_DESCARGA_FICHERO:
 					String text = m.getText();
@@ -154,7 +155,7 @@ public class ServerListener implements Runnable{
 					if (text.equals("error"))
 						client.failedDownload();
 					else 
-						client.startFileDownload(text.split(":")[0], Integer.parseInt(text.split(":")[1]));
+						client.startFileDownload(m.getIp(), m.getPort());
 					break;
 				default:
 					break;

@@ -90,9 +90,9 @@ public class MenuPanel extends JPanel implements Observer{
 	public void update(Observable o, Object arg) {
 		if (arg instanceof String && (String) arg == "id_set")
 			clientId.setText("ClientId: " + c.getId());
-		else if (arg instanceof String && (String) arg == "failed_download")
+		else if (arg instanceof String && "failed_download".equals((String) arg))
 			downloadStatus.setText("Download failed");
-		else if (arg instanceof String && ((String) arg).split(":")[0] == "success_download")
+		else if (arg instanceof String && ((String) arg).split(":")[0].equals("success_download"))
 			downloadStatus.setText("Succesfully downloaded " + " " + ((String) arg).split(":")[1]);
 	}
 }

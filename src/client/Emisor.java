@@ -14,9 +14,12 @@ public class Emisor extends Thread{
 	private ServerListener serverListener;
 	private FileShared file;
 	
+	private boolean readyToConnect;
+	
 	public Emisor(String filename, String path, Integer port, ServerListener serverListener) {
 		this.port = port;
 		this.serverListener = serverListener;
+		readyToConnect = false;
 		
 		//Lanza un nuevo hilo para cargar el fichero en cuestion en File
 		file = new FileShared(filename, path);
@@ -27,10 +30,15 @@ public class Emisor extends Thread{
 		return this.file.loaded();
 	}
 	
+	public boolean readyToConnect () {
+		return readyToConnect;
+	}
+	
 	@Override
 	public void run() {
 		try {
 			ServerSocket ss = new ServerSocket(port);
+			readyToConnect = true;
 			Socket s = ss.accept();
 			System.out.println("Emisor: conectado en puerto " + port);
 			
@@ -48,6 +56,7 @@ public class Emisor extends Thread{
 			
 			s.close();
 			ss.close();
+			readyToConnect = false;
 			
 		} catch (IOException e) {
 			e.printStackTrace();

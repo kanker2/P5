@@ -42,8 +42,8 @@ public class Message implements Serializable{
 	public Integer getPort() { return port; }
 	public Set<String> getFiles() { return files; }
 	public FileShared getFile() { return file; }
-	public String getId() {return id;}
-	public String getAddres() {return this.addres;}
+	public String getId() { return id; }
+	public String getAddres() { return this.addres; }
 
 	public MessageType nextType() {
 		switch(type) {
