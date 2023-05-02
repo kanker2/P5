@@ -1,24 +1,29 @@
 package client;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class File implements Serializable{
+public class FileShared implements Serializable{
 	private String filename;
 	private String path;
 	private ArrayList<String> lines;
 	private boolean loaded;
 	
-	public File(String filename, String path) {
+	public FileShared(String filename, String path) {
 		this.loaded = false;		
 		this.filename = filename;
 		this.path = path;
 		this.lines = new ArrayList<>();
 	}
 
+	public void setPath(String path) { this.path = path; }
+	
 	public String getFileName() { return filename; }
 	public ArrayList<String> getFileContent(){ return lines; }
 	public boolean loaded () { return loaded; }
@@ -36,6 +41,19 @@ public class File implements Serializable{
 		}
 		
 		loaded = true;
+	}
+	
+	public void writeFile() throws IOException {
+		File f = new File(path);
+		f.createNewFile();
+
+		System.out.println(f.getAbsolutePath());
+		
+		PrintWriter pw = new PrintWriter(f);
+		for (String line : lines) {
+			pw.println(line);
+			pw.flush();
+		}
 	}
 	
 	public String toString() {

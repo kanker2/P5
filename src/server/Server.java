@@ -32,7 +32,7 @@ public class Server extends Observable implements Runnable{
 	
 	public Server(Integer port) throws IOException{
 		filesToClients = new ConcurrentHashMap<>(new SemaphoreAccesManager());
-		clientListeners = new ConcurrentHashMap<>(new SemaphoreAccesManager());	
+		clientListeners = new ConcurrentHashMap<>(new MonitorAccesManager());	
 		idGenerator = 0;
 		idsMutex = new Semaphore(1);
 		ss = new ServerSocket(port);

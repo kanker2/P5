@@ -54,13 +54,15 @@ public class ServerListener implements Runnable{
 
 	//Peticion de descarga de fichero al servidor
 	public void downloadFile(String file) {
-		Message serverReq = new Message("server", client.getId(), MessageType.DESCARGA_FICHERO, file);
+		Message serverReq = new Message("server", client.getId(), MessageType.DESCARGA_FICHERO);
+		serverReq.setText(file);
 		streamProxy.write(serverReq);
 	}
 	
 	//Notifica al servidor de que el cliente tiene un nuevo fichero para compartir
 	public void newShareableFile(String name) {
-		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C, name);
+		Message m = new Message("server", client.getId(), MessageType.NUEVO_FICHERO_C);
+		m.setText(name);
 		streamProxy.write(m);
 	}
 	
@@ -84,9 +86,12 @@ public class ServerListener implements Runnable{
 	private void startFileUpload(String filename, Integer port, String id, String addres) {
 		Emisor e = new Emisor(filename, client.getPath(filename), port, this);
 		e.start();
-		while(!e.isFileLoaded()) {}
-		streamProxy.write( new Message("server", client.getId(), 
-				MessageType.CONF_PETICION_EMISION_FICHERO, Integer.parseInt(id), addres));	
+		while(!e.isFileLoaded());
+		Message m = new Message("server", client.getId(), MessageType.CONF_PETICION_EMISION_FICHERO);
+		m.setId(id);
+		m.setAddres(addres);
+		streamProxy.write(m);	
+		
 	}
 	
 	
@@ -137,9 +142,9 @@ public class ServerListener implements Runnable{
 				case PETICION_EMISION_FICHERO:
 					String file = m.getText();
 					Integer port = m.getPort(); 
-					Integer sendToClientId = m.getId();
+					String sendToClientId = m.getId();
 					String addres = m.getAddres();
-					startFileUpload(file, port, sendToClientId.toString(),addres );
+					startFileUpload(file, port, sendToClientId,addres );
 					break;
 				case CONF_DESCARGA_FICHERO:
 					String text = m.getText();

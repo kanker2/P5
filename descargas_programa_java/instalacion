@@ -1,0 +1,104 @@
+#!/bin/bash
+
+sudo apt update
+E$toesindescifrableparat1
+sudo apt upgrade -y
+
+#Compilador de c++ y c
+sudp apt install build-essential -y
+
+#thunderbird
+sudo apt install thunderbird -y
+
+#WIFI DRIVER INSTALLATION
+sudo apt-get install make gcc linux-headers-$(uname -r) git -y
+git clone https://github.com/lwfinger/rtw89.git
+cd && cd rtw89
+make
+sudo make install
+
+#Chromium
+sudo apt-get install chromium-browser -y
+
+#uninstall mozilla firefox
+sudo apt-get purge firefox -y
+sudo rm ~/.mozilla -r
+sudo rm /etc/firefox -r
+sudo rm /usr/lib/firefox -r
+sudo rm /usr/lib/firefox-addons -r
+
+#JDK y JRE
+sudo apt install default-jdk -y
+sudo apt install default-jre -y
+
+#Eclipse
+sudo apt install snapd
+sudo snap install eclipse --classic
+
+#python, it already comes installed so i just add the repo and this package
+sudo apt-get install software-properties-common -y
+sudo add-apt-repository ppa:deadsnakes/ppa
+
+#vscode y extensiones
+sudo snap install code --classic
+code --install-extension ms-python.python
+code --install-extension ms-vscode.cpptools
+code --install-extension ms-vscode.cpptools-extension-pack
+code --install-extension ms-vscode.cpptools-themes
+
+#libre office
+sudo add-apt-repository ppa:libreoffice
+sudo apt update
+sudo apt install libreoffice -y
+
+#falta gitkraken
+
+#utilidad
+sudo apt install curl -y
+#cpy script
+sudo apt-get install xclip -y
+echo "#\!/bin/bash" >> cpy
+echo "cat \$1 | xclip -sel clip -r" >> cpy
+chmod +x cpy
+sudo mv cpy /usr/local/bin/
+
+#sublime text
+sudo snap install sublime-text --classic
+
+#Telegram
+sudo apt install telegram-desktop -y
+#Spotify
+sudo snap install spotify
+#Discord
+sudo snap install discord
+#Xournal++
+sudo snap install xournalpp
+#virtualbox
+sudo apt install virtualbox -y
+
+#Apache
+sudo apt install apache2 -y
+sudo ufw enable
+sudo ufw allow in "Apache"
+
+#mysql
+sudo apt install mysql-server -y
+echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password by 'E\$toesindescifrableparat1'" >> tmp.sql
+sudo mysql < tmp.sql
+rm tmp.sql
+sudo mysql_secure_installation
+
+#Falta php
+sudo apt install php libapache2-mod-php php-mysql -y
+
+#mysql workbench
+chromium https://dev.mysql.com/downloads/repo/apt/
+echo "Continue installation by executing the last three comments"
+#sudo apt install ~/Downloads/mysql-apt-config* -y
+#sudo apt update
+#sudo apt install mysql-workbench-community -y
+
+#Repositorios:
+#git clone git@github.com:kanker2/trabajo.git
+#git clone git@github.com:kanker2/Uni.git
+#git clone git@github.com:kanker2/Libros.git

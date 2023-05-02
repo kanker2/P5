@@ -33,13 +33,18 @@ public class ClientListener extends Thread{
 	}
 	
 	public void updateFiles(Set<String> files) {
-		Message m = new Message(id, "server", MessageType.ACTUALIZAR_FICHEROS, files);
+		Message m = new Message(id, "server", MessageType.ACTUALIZAR_FICHEROS);
+		m.setFiles(files);
 		streamProxy.write(m);
 	}
 	
 	public void prepareUpload(String file, Integer port, String id, String addres) {
 		busyUploading = true;
-		Message m = new Message(this.id, "server", MessageType.PETICION_EMISION_FICHERO, file, port, Integer.parseInt(id), addres);
+		Message m = new Message(this.id, "server", MessageType.PETICION_EMISION_FICHERO);
+		m.setText(file);
+		m.setPort(port);
+		m.setId(id);
+		m.setAddres(addres);
 		streamProxy.write(m);
 	}
 	
@@ -71,9 +76,13 @@ public class ClientListener extends Thread{
 	private void startDownload(Message m) {
 		String file = m.getText();
 		//Devuelve info del cliente que puede compartir el fichero en formato ip:port
-		if (server.startTransfer(file, m.getSrc())) {
+		if (server.startTransfer(file, m.getSrc())) 
 			busyUploading = true;
-		}; 
+		else {
+			Message response = new Message(m.getSrc(), m.getDest(), MessageType.CONF_DESCARGA_FICHERO);
+			response.setText("error");
+			streamProxy.write(response);
+		}
 
 //		String clientInfoWhoShares; //		
 //		Message mResponse;
@@ -105,7 +114,8 @@ public class ClientListener extends Thread{
 	//Envia de vuelta la confirmacion de descarga de fichero al cliente que habia pedido la descarga
 	private void sendToClientListener(Message m) {
 		ClientListener cl = server.getClientListener(m.getId().toString());
-		Message msg = new Message(cl.getClientId(), "servidor", MessageType.CONF_DESCARGA_FICHERO, m.getAddres());
+		Message msg = new Message(cl.getClientId(), "servidor", MessageType.CONF_DESCARGA_FICHERO);
+		m.setAddres(m.getAddres());
 		cl.getStream().write(msg);
 	}
 	
@@ -127,6 +137,7 @@ public class ClientListener extends Thread{
 					break;
 				case DESCARGA_FICHERO:
 					startDownload(m);
+					break;
 				case FIN_DESCARGA_FICHERO:
 					busyUploading = false;
 					break;

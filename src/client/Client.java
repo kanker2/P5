@@ -1,6 +1,9 @@
 package client;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -21,6 +24,7 @@ public class Client extends Observable {
 		this.username = username;
 		shareableFiles = new TreeMap<>();
 		serverListener = new ServerListener(this, ip, port);
+		(new File(Main.DEFAULT_DOWNLOADS_DIR)).mkdir();
 	}
 
 	//Cliente se conecta por primera vez
@@ -65,11 +69,10 @@ public class Client extends Observable {
 	}
 	
 	//Notifica descarga exitosa
-	public void succesDownload(File f) {
+	public void succesDownload(FileShared f) {
 		serverListener.downloadFinished();
 		notifyObservers("success_download:" + f.getFileName());
 		saveFile(f);
-		System.out.println(f);
 	}
 	
 	public void listFiles() {
@@ -93,8 +96,16 @@ public class Client extends Observable {
 		serverListener.setLog(o);
 	}
 	
-	private void saveFile(File f) {
+	private void saveFile(FileShared f) {
 		String path = Main.DEFAULT_DOWNLOADS_DIR + "/" + f.getFileName();
+		
+		f.setPath(path);
+		try {
+			f.writeFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		newShareableFile(f.getFileName(), path);
 	}
 }

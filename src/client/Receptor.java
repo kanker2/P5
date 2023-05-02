@@ -27,7 +27,7 @@ public class Receptor extends Thread {
 				System.out.println("Receptor: conexion establecida");
 				Message m = serverListener.read(s); // Recibe fichero del emisor
 				System.out.println("Receptor: fichero recibido");
-				File f = m.getFile();
+				FileShared f = m.getFile();
 
 				m = new Message(m.getSrc(), c.getId(), m.nextType()); // Responde con mensaje CONF_LISTA_EMISION_FICHERO
 				serverListener.write(m, s);
