@@ -2,7 +2,9 @@ package common.manageConcurrency;
 
 import java.util.concurrent.Semaphore;
 
-public class LockTicket implements Lock{
+//Esta clase unicamente la empleamos como mutex sobre el generador de IDs del Server y para cubrir los fin y fout de StreamProxy Monitor
+
+public class LockTicket {
 
 	private Semaphore numberMutex;
 	private Integer number;

@@ -15,6 +15,7 @@ import java.util.concurrent.Semaphore;
 import common.Observable;
 import common.Observer;
 import common.manageConcurrency.ConcurrentHashMap;
+import common.manageConcurrency.LockTicket;
 import common.manageConcurrency.MonitorAccesManager;
 import common.manageConcurrency.SemaphoreAccesManager;
 import main.Main;
@@ -25,7 +26,7 @@ public class Server extends Observable implements Runnable{
 	private Map<String, ClientListener> clientListeners;	//Id de cliente, el clientListener asociado
 	private Observer log;
 	
-	private Semaphore idsMutex;
+	private LockTicket idsMutex;
 	private Integer idGenerator;
 	
 	private ServerSocket ss;
@@ -34,15 +35,15 @@ public class Server extends Observable implements Runnable{
 		filesToClients = new ConcurrentHashMap<>(new SemaphoreAccesManager());
 		clientListeners = new ConcurrentHashMap<>(new MonitorAccesManager());	
 		idGenerator = 0;
-		idsMutex = new Semaphore(1);
+		idsMutex = new LockTicket();
 		ss = new ServerSocket(port);
 	}
 	
 	public String getNewId() throws InterruptedException {
-		idsMutex.acquire();
+		idsMutex.lock();
 		Integer tmp = idGenerator;
 		idGenerator++;
-		idsMutex.release();
+		idsMutex.unlock();
 		return tmp.toString();
 	}
 	

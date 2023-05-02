@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class MonitorAccesManager implements AccesManager {
-	
+	//Utilizamos el Lock de Java por el uso de las variables de condicion
 	private int nw, nr;
 	private Lock e;
 	private Condition okToRead;

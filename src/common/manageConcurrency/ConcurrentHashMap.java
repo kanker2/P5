@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
+//Esta clase se asegura de encapsular la gestion de la concurrencia en los metodos que empleamos en nuestra práctica
+
 public class ConcurrentHashMap<K, V> extends HashMap<K, V>{
 	
 	private AccesManager accMan;

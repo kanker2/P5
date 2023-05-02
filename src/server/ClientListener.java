@@ -107,16 +107,12 @@ public class ClientListener extends Thread{
 		}
 	}
 	
-	public StreamProxyMonitor getStream() {
-		return this.streamProxy;
-	}
-	
 	//Envia de vuelta la confirmacion de descarga de fichero al cliente que habia pedido la descarga
 	private void sendToClientListener(Message m) {
-		ClientListener cl = server.getClientListener(m.getId().toString());
+		ClientListener cl = server.getClientListener(m.getId());
 		Message msg = new Message(cl.getClientId(), "servidor", MessageType.CONF_DESCARGA_FICHERO);
-		m.setAddres(m.getAddres());
-		cl.getStream().write(msg);
+		msg.setAddres(m.getAddres());
+		cl.streamProxy.write(msg);
 	}
 	
 	@Override
