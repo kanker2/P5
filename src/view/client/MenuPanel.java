@@ -93,6 +93,6 @@ public class MenuPanel extends JPanel implements Observer{
 		else if (arg instanceof String && "failed_download".equals((String) arg))
 			downloadStatus.setText("Descarga fallida");
 		else if (arg instanceof String && ((String) arg).split(":")[0].equals("success_download"))
-			downloadStatus.setText("Descarga completada" + " " + ((String) arg).split(":")[1]);
+			downloadStatus.setText(((String) arg).split(":")[1] + " descargado");
 	}
 }
