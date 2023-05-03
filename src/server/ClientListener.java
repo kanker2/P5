@@ -84,18 +84,6 @@ public class ClientListener extends Thread{
 			response.setText("error");
 			streamProxy.write(response);
 		}
-
-//		String clientInfoWhoShares; //		
-//		Message mResponse;
-//
-//		if (clientInfoWhoShares == null)
-//			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), "error");
-//		else {
-//			busyUploading = true;
-//			mResponse = new Message(m.getSrc(), m.getDest(), m.nextType(), clientInfoWhoShares); //CONF_DESCARGA_FICHERO
-//		}
-//		
-//		streamProxy.write(mResponse);
 	}
 	
 	private void closeConnection(Message m) {

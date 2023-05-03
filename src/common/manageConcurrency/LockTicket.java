@@ -18,10 +18,11 @@ public class LockTicket {
 	public void lock() {
 		int myTurn;
 		try {
-		numberMutex.acquire();
-		myTurn = number;
-		number++;
-		numberMutex.release();
+			//En la práctica habría que gestionar el overflow de next y number
+			numberMutex.acquire();
+			myTurn = number;
+			number++;
+			numberMutex.release();
 		
 		while(next != myTurn);
 		} catch(InterruptedException e) {

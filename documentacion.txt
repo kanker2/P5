@@ -1,0 +1,46 @@
+Hecho por:
+	Kevin Oscar Arce Vera y Daixiang Chen
+
+En esta practica hemos implementado 3 funcionalidades:
+	1-	Subir fichero:
+		Con esto comunicamos al sistema que tenemos un archivo que podemos compartir
+		Ante esta peticion el servidor se encarga de enviar la lista de archivos actualizada al resto de clientes
+
+		De esta forma tenemos un sistema que intenta mantener la informacion a tiempo real en la parte del cliente puesto que estos se actualizan automaticamente
+
+	2-	Descargar fichero:
+		Le comunicamos al servidor que queremos un fichero, enviandole además el nombre de dicho fichero
+
+		Esto desencadena la siguiente secuencia de mensajes:
+		1. Cliente1 pide a servidor el fichero
+		2. Servidor comunica a Cliente2 que se le ha pedido un fichero
+		3. Cliente2, tras crear el serverSocket, confirma la recepcion del mensaje al servidor, informandole, además, de la direccion a la que conectarse y del ID del cliente con el cual se realizará la conexión
+		4. Servidor confirma a Cliente1 de la descarga
+		5. Tras Cliente1 recibir la confirmación este establece el Socket con Cliente2
+		6. Cliente2 le envia a Cliente1 el mensaje con el fichero leido
+		7. Cliente1 y Cliente2 comunican a Servidor el fin de las respectivas acciones realiazadas
+
+	Para la descarga de ficheros hemos impuesto la restriccion de que un cliente solo puede emitir o descargar un fichero a la vez.
+	Para asegurar ello lo hemos gestionado desde el servidor de forma que los ClientListener entren en un estado "bloqueado" mientras no ha terminado la descarga/emision de un fichero
+	Este estado se ha implementado con un simple boolean, busyUploading, que está a true mientras emite/recibe.
+	Es por esta restricción que era necesario el paso 7
+	
+	3-	Cerrar conexion:
+		Comunica al servidor de que se va a desconectar del sistema, de esta forma el servidor actualiza su lista de archivos y comunica el cambio al resto de clientes
+
+Para el tema de la comunicacion de mensajes hemos utilizado la clase Message, la cual es Serializable y esta compuesta por varios setters y gettes, debido a que según el tipo de mensaje requeriremos usar los campos ip y puerto o filename...
+
+En cuanto a la concurrencia hemos hecho lo siguiente:
+	Lock:
+		Hemos utilizado la implementacion hecho en la Practica 2 del Lock Ticket, el cual es justo e implementable para un numero indeterminado de procesos
+		Lo utilizamos como mutex unicamente en un par de clases como StreamProxyMonitor y Server
+	Semaforos:
+		Utilizamos la implementacion hecho del problema ReadersWriters en la práctica 3 para implementar uno de los monitores de las dos tablas utilizadas en Server
+
+	Monitores:
+		Al igual que los semaforos lo utilizamos para gestionar el acceso a una de las tablas y nuevamente utilizamos la implementacion hecho en la practica 4 que hace uso de las variables de condicion
+
+A parte de estos detalles de implementacion no vemos mas temas a comentar. La practica se ha implementado con la idea en mente de poder ser ejecutada desde cualquier máquina. Por ello, en principio funcionará si servidores y clientes están distribuidos en distintas máquinas. Esto es en principio, no sé si en la práctica funcione por el tema de rutas de ficheros según el sistema operativo, aunque creemos que si por el uso hecho de la clase de Java File.
+
+El puerto por defecto de la comunicacion con el servidor es el 5000
+y el puerto que se utiliza para las transferencias entre clientes es el 4000

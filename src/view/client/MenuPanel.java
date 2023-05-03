@@ -44,7 +44,9 @@ public class MenuPanel extends JPanel implements Observer{
 		JTextField fileName = new JTextField();
 		JButton fileButton = new JButton("Descargar");
 		fileButton.addActionListener((ActionEvent e) -> {
-			c.downloadFile(fileName.getText());
+			String filename = fileName.getText();
+			fileName.setText("");
+			c.downloadFile(filename);
 		});
 		
 		downloadFilePanel.add(fileName);
