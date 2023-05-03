@@ -61,7 +61,6 @@ public class StreamProxy extends Observable{
 			ObjectInputStream fin = new ObjectInputStream(s.getInputStream());
 			m = (Message) fin.readObject(); 
 			notifyObservers(m);
-			fin.close();
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -74,7 +73,6 @@ public class StreamProxy extends Observable{
 			fout.writeObject(m);
 			fout.flush();
 			notifyObservers(m);
-			fout.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

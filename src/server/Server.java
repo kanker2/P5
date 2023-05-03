@@ -95,8 +95,10 @@ public class Server extends Observable implements Runnable{
 	//Server busca un cliente que pueda compartir dicho fichero
 	public boolean startTransfer(String file, String idReceiver) {
 		ClientListener clWhoShares = null;
-		HashSet<String> idsWhoCanShare = new HashSet<String>(filesToClients.get(file));
-
+		HashSet<String> idsWhoCanShare = new HashSet<String>();
+		if (filesToClients.get(file) != null)
+			idsWhoCanShare.addAll(filesToClients.get(file));
+		
 		//Buscamos al cliente que vaya a transmitir el archivo 
 		for (String clientId : idsWhoCanShare) {
 			clWhoShares = clientListeners.get(clientId);

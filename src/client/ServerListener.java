@@ -152,7 +152,7 @@ public class ServerListener implements Runnable{
 					//Si todo a ido bien y se puede descargar el archivo recibimos un string de la siguiente forma
 					//[ip]:[port]
 					//En caso contrario un string con el valor error
-					if (text.equals("error"))
+					if (text != null && text.equals("error"))
 						client.failedDownload();
 					else 
 						client.startFileDownload(m.getIp(), m.getPort());

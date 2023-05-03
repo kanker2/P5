@@ -47,8 +47,6 @@ public class FileShared implements Serializable{
 		File f = new File(path);
 		f.createNewFile();
 
-		System.out.println(f.getAbsolutePath());
-		
 		PrintWriter pw = new PrintWriter(f);
 		for (String line : lines) {
 			pw.println(line);
